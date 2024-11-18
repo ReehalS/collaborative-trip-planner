@@ -1,0 +1,9 @@
+model Playlist {
+  id          String    @id @default(uuid())
+  name        String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  songs       PlaylistToSong[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
