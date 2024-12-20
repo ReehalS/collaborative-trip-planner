@@ -1,12 +1,23 @@
 import { mergeResolvers } from '@graphql-tools/merge';
 
-import User from './User.js';
-import Playlist from './Playlist.js';
-import Song from './Song.js';
+import User from './Users.js';
+import Trip from './Trips.js';
+import Activity from './Activities.js';
+import UserToTrip from './UserToTrip.js';
+import UserToActivity from './UserToActivity.js';
+import ActivityToTrip from './ActivityToTrip.js';
 
 const allResolvers = [];
 
-const modules = [User, Playlist, Song];
+const modules = [
+  User,
+  Trip,
+  Activity,
+  UserToTrip,
+  UserToActivity,
+  ActivityToTrip,
+];
+
 modules.forEach((module) => {
   allResolvers.push(module);
 });

@@ -1,9 +1,6 @@
 import Users from '../_services/Users.js';
 
 const resolvers = {
-  User: {
-    playlists: ({ id }) => Users.getPlaylists({ id }),
-  },
   Query: {
     user: (_, { id }) => Users.find({ id }),
     users: (_, { ids }) => Users.findMany({ ids }),

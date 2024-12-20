@@ -3,17 +3,24 @@ import gql from 'graphql-tag';
 const typeDefs = gql`
   type User {
     id: ID!
-    name: String!
-    playlists: [Playlist]
+    email: String!
+    firstName: String!
+    lastName: String
+    profilePic: Int!
+    trips: [UserToTrip]
+    UserToActivity: [UserToActivity]
   }
 
   input UserInput {
-    name: String!
+    email: String!
+    firstName: String!
+    lastName: String
+    profilePic: Int!
   }
 
   type Query {
     user(id: ID!): User
-    users(ids: [ID]!): [User]
+    users(ids: [ID!]!): [User]
   }
 
   type Mutation {
@@ -22,4 +29,5 @@ const typeDefs = gql`
     deleteUser(id: ID!): Boolean
   }
 `;
+
 export default typeDefs;

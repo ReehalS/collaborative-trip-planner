@@ -1,0 +1,7 @@
+model UserToActivity {
+  id          String   @id @default(uuid())
+  userId      String
+  activityId  String
+  user        User     @relation(fields: [userId], references: [id])
+  activity    Activity @relation(fields: [activityId], references: [id])
+}

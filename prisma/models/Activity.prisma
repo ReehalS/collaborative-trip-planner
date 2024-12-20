@@ -1,0 +1,23 @@
+model Activity {
+  id          String            @id @default(uuid())
+  tripId      String
+  suggesterId String
+  activityName String
+  notes       String?
+  city        String?
+  country     String
+  timezone    String
+  startTime   DateTime
+  endTime     DateTime
+  latitude    Float
+  longitude   Float
+  address     String?
+  categories  String[]
+  website     String?
+  phoneNumber String?
+  numVotes    Int              @default(0)
+  voters      String[]
+  avgScore    Float            @default(0)
+  createdAt   DateTime         @default(now())
+  trips       ActivityToTrip[]
+}

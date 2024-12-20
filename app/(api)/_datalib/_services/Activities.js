@@ -1,22 +1,22 @@
 import prisma from '../_prisma/client.js';
 
-export default class Users {
+export default class Activities {
   // CREATE
   static async create({ input }) {
-    return prisma.user.create({
+    return prisma.activity.create({
       data: input,
     });
   }
 
   // READ
   static async find({ id }) {
-    return prisma.user.findUnique({
+    return prisma.activity.findUnique({
       where: { id },
     });
   }
 
   static async findMany({ ids }) {
-    return prisma.user.findMany({
+    return prisma.activity.findMany({
       where: {
         id: { in: ids },
       },
@@ -26,7 +26,7 @@ export default class Users {
   // UPDATE
   static async update({ id, input }) {
     try {
-      return prisma.user.update({
+      return prisma.activity.update({
         where: { id },
         data: input,
       });
@@ -38,7 +38,7 @@ export default class Users {
   // DELETE
   static async delete({ id }) {
     try {
-      await prisma.user.delete({
+      await prisma.activity.delete({
         where: { id },
       });
       return true;

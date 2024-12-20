@@ -7,39 +7,80 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Playlist {
-  id        String           @id @default(uuid())
-  name      String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  songs     PlaylistToSong[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+enum Role {
+  CREATOR
+  USER
 }
 
-model PlaylistToSong {
-  playlistId String
-  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
-  songId     String
-  song       Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@id(name: "id", fields: [playlistId, songId])
+model Activity {
+  id             String           @id @default(uuid())
+  tripId         String
+  suggesterId    String
+  activityName   String
+  notes          String?
+  city           String?
+  country        String
+  timezone       String
+  startTime      DateTime
+  endTime        DateTime
+  latitude       Float
+  longitude      Float
+  address        String?
+  categories     String[]
+  website        String?
+  phoneNumber    String?
+  numVotes       Int              @default(0)
+  voters         String[]
+  avgScore       Float            @default(0)
+  createdAt      DateTime         @default(now())
+  trips          ActivityToTrip[]
+  UserToActivity UserToActivity[]
 }
 
-model Song {
-  id        String           @id @default(uuid())
-  name      String
-  playlists PlaylistToSong[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+model ActivityToTrip {
+  id         String   @id @default(uuid())
+  activityId String
+  tripId     String
+  activity   Activity @relation(fields: [activityId], references: [id])
+  trip       Trip     @relation(fields: [tripId], references: [id])
+}
+
+model Trip {
+  id         String           @id @default(uuid())
+  userIds    String[]
+  joinCode   String           @unique
+  activities ActivityToTrip[]
+  country    String
+  city       String?
+  latitude   Float
+  longitude  Float
+  timezone   String
+  users      UserToTrip[]
 }
 
 model User {
-  id        String     @id @default(uuid())
-  name      String
-  playlists Playlist[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id             String           @id @default(uuid())
+  email          String           @unique
+  firstName      String
+  lastName       String?
+  profilePic     Int
+  trips          UserToTrip[]
+  UserToActivity UserToActivity[]
+}
+
+model UserToActivity {
+  id         String   @id @default(uuid())
+  userId     String
+  activityId String
+  user       User     @relation(fields: [userId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id])
+}
+
+model UserToTrip {
+  id     String @id @default(uuid())
+  userId String
+  tripId String
+  role   Role
+  user   User   @relation(fields: [userId], references: [id])
+  trip   Trip   @relation(fields: [tripId], references: [id])
 }
