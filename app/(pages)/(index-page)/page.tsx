@@ -3,7 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from "jwt-decode";
-import { User } from '../_types'
+import { User } from '../_types';
+
+const profileColors = [
+  '#FF5733', // Red
+  '#33FF57', // Green
+  '#3357FF', // Blue
+  '#F3FF33', // Yellow
+  '#FF33A8', // Pink
+  '#33FFF3', // Cyan
+  '#A833FF', // Purple
+  '#FFC133', // Orange
+];
 
 const IndexPage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -36,11 +47,32 @@ const IndexPage = () => {
     }
   }, [router]);
 
+  const getProfileColor = (profilePicIndex: number | undefined) => {
+    if (profilePicIndex === undefined || profilePicIndex < 1 || profilePicIndex > 8) {
+      return '#ddd'; // Default gray if no valid profilePic is set
+    }
+    return profileColors[(profilePicIndex - 1) % profileColors.length];
+  };
+
   if (user) {
+    const profileColor = getProfileColor(user.profilePic);
+
     return (
       <div style={{ padding: '1rem' }}>
         <h1>Welcome back, {user.firstName}!</h1>
         <p>Email: {user.email}</p>
+        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: profileColor,
+              border: '2px solid #ddd',
+            }}
+          ></div>
+          <p style={{ margin: 0 }}>Your Profile Color</p>
+        </div>
         <div style={{ marginTop: '1rem' }}>
           <button onClick={() => router.push('/trips')}>Go to Trips</button>
           <button onClick={() => router.push('/activities')}>

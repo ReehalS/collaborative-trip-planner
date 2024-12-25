@@ -3,14 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
+import { gql } from 'graphql-tag';
+import sendApolloRequest from '@utils/sendApolloRequest';
+import { User } from '../_types';
 
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName?: string;
-  profilePic?: number;
-}
+const USER_UPDATE_MUTATION = gql`
+  mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
+    updateUser(id: $id, input: $input) {
+      id
+      firstName
+      lastName
+      email
+      profilePic
+    }
+  }
+`;
 
 const profilePics = Array.from({ length: 8 }, (_, i) => i + 1);
 
@@ -23,10 +30,10 @@ const EditUser = () => {
   const [password, setPassword] = useState('');
   const [profilePic, setProfilePic] = useState(0);
   const [showDialog, setShowDialog] = useState(false);
+  const [showPasswordField, setShowPasswordField] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log(token)
     if (token) {
       try {
         const decoded = jwtDecode<{ exp: number } & User>(token);
@@ -37,6 +44,8 @@ const EditUser = () => {
           router.push('/login');
           return;
         }
+
+        console.log(decoded)
         setUser(decoded);
         setFirstName(decoded.firstName);
         setLastName(decoded.lastName || '');
@@ -59,33 +68,30 @@ const EditUser = () => {
     }
 
     try {
-      const updatedUser: Partial<User> = {
-        firstName,
-        lastName,
-        email,
-        profilePic,
-      };
-
-      const res = await fetch(`/api/users/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+      const variables = {
+        id: user.id,
+        input: {
+          firstName,
+          lastName,
+          email,
+          profilePic,
+          ...(showPasswordField && password ? { password } : {}),
         },
-        body: JSON.stringify(updatedUser),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        alert(`Error: ${errorData.error || 'Failed to update profile'}`);
+      };
+      console.log(variables);
+      const response = await sendApolloRequest(USER_UPDATE_MUTATION, variables);
+      console.log(response);
+      if (!response?.data?.updateUser) {
+        alert('Failed to update profile');
         return;
       }
 
-      const newToken = await res.text(); // Assume the server returns the updated token
+      // Update the token in localStorage with the new user data
+      const updatedUser = response.data.updateUser;
+      const newToken = JSON.stringify(updatedUser); // Assuming the server provides a new token or updated user info
       localStorage.setItem('token', newToken);
 
-      const decoded = jwtDecode<User>(newToken);
-      setUser(decoded);
+      setUser(updatedUser);
       alert('Profile updated!');
       router.push('/');
     } catch (error) {
@@ -122,33 +128,113 @@ const EditUser = () => {
       </div>
       <div>
         <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {!showPasswordField ? (
+          <button
+            onClick={() => setShowPasswordField(true)}
+            style={{
+              backgroundColor: '#0275d8',
+              color: 'white',
+              padding: '5px 10px',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            Change Password
+          </button>
+        ) : (
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        )}
       </div>
       <div>
         <label>Profile Picture:</label>
-        <button onClick={() => setShowDialog(true)}>
-          Choose Profile Picture
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            onClick={() => setShowDialog(true)}
+            style={{
+              backgroundColor: '#0275d8',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            Choose Profile Picture
+          </button>
+          {/* Display the selected profile picture color */}
+          <div
+            style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              backgroundColor: [
+                '#FF5733',
+                '#33FF57',
+                '#3357FF',
+                '#F3FF33',
+                '#FF33A8',
+                '#33FFF3',
+                '#A833FF',
+                '#FFC133',
+              ][(profilePic - 1) % 8], // Map profilePic to its color
+              border: '1px solid #ddd',
+            }}
+          ></div>
+        </div>
       </div>
+
       {showDialog && (
         <div
           style={{
             position: 'absolute',
             backgroundColor: 'white',
             padding: '1rem',
+            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+            borderRadius: '8px',
           }}
         >
           <h3>Choose Profile Picture</h3>
-          {profilePics.map((pic) => (
-            <button key={pic} onClick={() => setProfilePic(pic)}>
-              Picture {pic}
-            </button>
-          ))}
-          <button onClick={() => setShowDialog(false)}>Close</button>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {profilePics.map((pic, index) => {
+              const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33A8', '#33FFF3', '#A833FF', '#FFC133'];
+              return (
+                <button
+                  key={pic}
+                  onClick={() => setProfilePic(pic)}
+                  style={{
+                    backgroundColor: colors[index % colors.length],
+                    color: 'white',
+                    padding: '10px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Picture {pic}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            onClick={() => setShowDialog(false)}
+            style={{
+              marginTop: '10px',
+              backgroundColor: '#d9534f',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            Close
+          </button>
         </div>
       )}
       <button onClick={handleSave}>Save Changes</button>

@@ -25,7 +25,7 @@ const typeDefs = gql`
     firstName: String
     lastName: String
     profilePic: Int
-    password: String # for password update
+    password: String
   }
 
   type Query {

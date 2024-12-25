@@ -29,7 +29,7 @@ const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
       try {
         const variables = { tripId };
         const response = await sendApolloRequest(GET_TRIP_MEMBERS, variables);
-        console.log(response)
+
         if (response.data.tripMembers) {
           setMembers(response.data.tripMembers);
         } else {

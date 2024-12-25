@@ -13,7 +13,6 @@ const resolvers = {
   },
   Mutation: {
     createUser: (_, { input }) => {
-      // No auth needed to create user
       return Users.create({ input });
     },
     updateUser: (_, { id, input }, { auth }) => {
