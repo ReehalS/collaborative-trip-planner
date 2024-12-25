@@ -9,10 +9,18 @@
     },
     {
       "name": "Examples",
-      "slug": "/examples"
+      "slug": "/trips"
     },
     {
       "name": "Contact Us",
       "slug": "/contact"
+    },
+    {
+      "name": "Sign Up",
+      "slug": "/signup"
+    },
+    {
+      "name": "Login",
+      "slug": "/login"
     }
   ]
