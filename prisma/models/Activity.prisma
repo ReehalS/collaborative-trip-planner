@@ -15,9 +15,9 @@ model Activity {
   categories  String[]
   website     String?
   phoneNumber String?
-  numVotes    Int              @default(0)
-  voters      String[]
-  avgScore    Float            @default(0)
-  createdAt   DateTime         @default(now())
-  trips       ActivityToTrip[]
+  numVotes    Int               @default(0)
+  avgScore    Float             @default(0)
+  votes       Json              @default("[]") // Array of objects containing userId and score
+  createdAt   DateTime          @default(now())
+  trip        ActivityToTrip[]  @relation("ActivityToTrip_Activity")
 }

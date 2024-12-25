@@ -1,12 +1,12 @@
 model Trip {
-  id          String            @id @default(uuid())
-  userIds     String[]
-  joinCode    String            @unique
-  activities  ActivityToTrip[]
-  country     String
-  city        String?
-  latitude    Float
-  longitude   Float
-  timezone    String
-  users       UserToTrip[]
+  id             String           @id @default(uuid())
+  userIds        String[]
+  joinCode       String           @unique
+  country        String
+  city           String?
+  latitude       Float
+  longitude      Float
+  timezone       String
+  users          UserToTrip[]
+  activities     ActivityToTrip[] @relation("ActivityToTrip_Trip")
 }

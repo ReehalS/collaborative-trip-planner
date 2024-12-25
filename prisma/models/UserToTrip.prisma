@@ -1,8 +1,8 @@
 model UserToTrip {
-  id      String   @id @default(uuid())
-  userId  String
-  tripId  String
-  role    Role
-  user    User     @relation(fields: [userId], references: [id])
-  trip    Trip     @relation(fields: [tripId], references: [id])
+  id     String @id @default(uuid())
+  userId String
+  tripId String
+  role   Role
+  user   User   @relation(fields: [userId], references: [id])
+  trip   Trip   @relation(fields: [tripId], references: [id])
 }

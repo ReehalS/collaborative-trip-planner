@@ -1,8 +1,10 @@
 model User {
-  id          String     @id @default(uuid())
-  email       String     @unique
-  firstName   String
-  lastName    String?
-  profilePic  Int
-  trips       UserToTrip[]
+  id             String           @id @default(uuid())
+  email          String           @unique
+  firstName      String
+  lastName       String?
+  password       String
+  profilePic     Int
+  trips          UserToTrip[]
+  UserToActivity UserToActivity[]
 }
