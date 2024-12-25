@@ -10,7 +10,7 @@ const typeDefs = gql`
     latitude: Float!
     longitude: Float!
     timezone: String!
-    activities: [Activity!]!
+    activities: [ActivityToTrip]
     users: [UserToTrip]
   }
 
@@ -28,13 +28,19 @@ const typeDefs = gql`
     isValid: Boolean!
   }
 
+  type TripDetailsResponse {
+    trip: Trip!
+    activities: [Activity!]!
+  }
+
   type Query {
-    trip(id: ID!): Trip
+    trip(id: ID!): TripDetailsResponse
     trips(ids: [ID!]!): [Trip]
     validateJoinCode(joinCode: String!): ValidateJoinCodeResponse
     tripByJoinCode(joinCode: String!): Trip
   }
 
+  
   type Mutation {
     createTrip(input: TripInput!): Trip
     deleteTrip(id: ID!): Boolean

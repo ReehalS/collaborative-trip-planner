@@ -20,9 +20,9 @@ export async function POST(request: Request) {
     const data = await response.json();
 
     if (data.rawOffset !== undefined) {
-      const utcOffset = data.rawOffset / 3600; // Convert seconds to hours
+      const utcOffset = data.rawOffset*1000; // Convert seconds to milliseconds
       const formattedOffset =
-        utcOffset >= 0 ? `UTC+${utcOffset}` : `UTC${utcOffset}`;
+        utcOffset >= 0 ? `${utcOffset}` : `-${utcOffset}`;
       return NextResponse.json({ timezone: formattedOffset });
     } else {
       return NextResponse.json(

@@ -16,7 +16,7 @@ export interface Activity {
   website?: string;
   phoneNumber?: string;
   numVotes: number;
-  voters: string[];
+  votes: string[];
   avgScore: number;
   createdAt: string; // ISO string
 }

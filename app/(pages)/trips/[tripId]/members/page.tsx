@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
-import { useRouter } from 'next/navigation';
 
 const GET_TRIP_MEMBERS = gql`
   query GetTripMembers($tripId: ID!) {
@@ -32,7 +31,7 @@ const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
       try {
         const variables = { tripId };
         const response = await sendApolloRequest(GET_TRIP_MEMBERS, variables);
-        console.log(response)
+
         if (response.data.trip && response.data.trip.users) {
           setMembers(response.data.trip.users);
         } else {

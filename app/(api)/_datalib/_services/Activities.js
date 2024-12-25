@@ -58,7 +58,7 @@ export default class Activities {
       throw new Error('Activity not found');
     }
 
-    const votes = activity.voters || [];
+    const votes = activity.votes || [];
 
     const existingVoteIndex = votes.findIndex((vote) => vote.userId === userId);
 
@@ -74,7 +74,7 @@ export default class Activities {
     return prisma.activity.update({
       where: { id: activityId },
       data: {
-        voters: votes,
+        votes: votes,
         numVotes: votes.length,
         avgScore,
       },

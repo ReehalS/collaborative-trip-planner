@@ -19,7 +19,7 @@ const typeDefs = gql`
     website: String
     phoneNumber: String
     numVotes: Int!
-    voters: [VoteRecord!]!
+    votes: [VoteRecord!]!
     avgScore: Float!
     createdAt: String!
     trips: [ActivityToTrip]

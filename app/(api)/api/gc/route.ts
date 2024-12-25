@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     );
 
     const data = await response.json();
-    console.log(data);
+
     if (data.status === 'OK' && data.results.length > 0) {
       const location = data.results[0].geometry.location;
       const addressComponents = data.results[0].address_components;

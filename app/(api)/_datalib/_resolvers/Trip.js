@@ -7,24 +7,17 @@ const resolvers = {
   Query: {
     trip: async (_, { id }, { auth }) => {
       if (!auth?.userId) throw new Error('Unauthorized');
-
       const trip = await Trips.find({ id });
       if (!trip) {
         throw new Error('Trip not found.');
       }
 
-      // Fetch activities related to the trip
       const activityToTripRelations = await ActivityToTrip.findByTrip({
         tripId: id,
       });
+      const activities = activityToTripRelations.map((relation) => relation.activity);
 
-      const activities = await Promise.all(
-        activityToTripRelations.map((relation) =>
-          Activities.find({ id: relation.activityId })
-        )
-      );
-
-      return { ...trip, activities };
+      return { trip: trip, activities: activities };
     },
     trips: (_, { ids }, { auth }) => {
       if (!auth?.userId) throw new Error('Unauthorized');
