@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { Loader } from '@googlemaps/js-api-loader';
+import { jwtDecode } from 'jwt-decode';
+import { User } from '../../../_types'
 
 const CREATE_ACTIVITY_MUTATION = gql`
   mutation CreateActivity($input: ActivityInput!) {
@@ -18,12 +20,27 @@ const CREATE_ACTIVITY_MUTATION = gql`
 const GET_TRIP_DETAILS = gql`
   query GetTripDetails($tripId: ID!) {
     trip(id: $tripId) {
-      id
-      latitude
-      longitude
-      city
-      country
-      timezone
+      trip {
+        id
+        country
+        city
+        joinCode
+        latitude
+        longitude
+        timezone
+      }
+      activities {
+        id
+        activityName
+        startTime
+        endTime
+        notes
+        categories
+        latitude
+        longitude
+        avgScore
+        numVotes
+      }
     }
   }
 `;
@@ -54,7 +71,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     try {
       const variables = { tripId };
       const response = await sendApolloRequest(GET_TRIP_DETAILS, variables);
-      const data = response.data.trip;
+      const data = response.data.trip.trip;
 
       if (data?.latitude && data?.longitude) {
         setTripLatitude(data.latitude);
@@ -108,12 +125,11 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     const addressValue = addressInput.value;
     let queryAddress = addressValue;
 
-    // Append city or country to the address
     if (city) {
       queryAddress += ` ${city}`;
-    } else if (country) {
-      queryAddress += ` ${country}`;
     }
+    queryAddress += ` ${country}`;
+    
     try {
       const response = await fetch('/api/gc', {
         method: 'POST',
@@ -124,7 +140,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       });
 
       const data = await response.json();
-      console.log(data);
+
       if (data.latitude && data.longitude) {
         setLatitude(data.latitude);
         setLongitude(data.longitude);
@@ -187,7 +203,8 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     if (!validateTimes()) return;
 
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const token = localStorage.getItem('token');
+      const user = jwtDecode<{ exp: number } & User>(token);
       const suggesterId = user.id;
 
       if (!suggesterId) {
@@ -197,8 +214,8 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       const finalCity = city || activityCity;
 
       // Convert datetime-local to ISO-8601 DateTime string
-      const formattedStartTime = new Date(startTime).toISOString();
-      const formattedEndTime = new Date(endTime).toISOString();
+      const formattedStartTime = new Date(startTime).getTime() 
+      const formattedEndTime = new Date(endTime).getTime() 
 
       const variables = {
         input: {

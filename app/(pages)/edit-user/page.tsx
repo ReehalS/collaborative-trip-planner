@@ -1,26 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '../_types/user'; // Import the User interface
+import { jwtDecode } from 'jwt-decode';
+
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName?: string;
+  profilePic?: number;
+}
 
 const profilePics = Array.from({ length: 8 }, (_, i) => i + 1);
 
 const EditUser = () => {
   const router = useRouter();
-
-  // Retrieve and type the user from localStorage
-  const [user] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? (JSON.parse(storedUser) as User) : null;
-  });
-
-  const [firstName, setFirstName] = useState(user?.firstName || '');
-  const [lastName, setLastName] = useState(user?.lastName || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [user, setUser] = useState<User | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [profilePic, setProfilePic] = useState(user?.profilePic || 0);
+  const [profilePic, setProfilePic] = useState(0);
   const [showDialog, setShowDialog] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    if (token) {
+      try {
+        const decoded = jwtDecode<{ exp: number } & User>(token);
+
+        if (decoded.exp * 1000 < Date.now()) {
+          console.log('Token expired, redirecting to login.');
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
+        setUser(decoded);
+        setFirstName(decoded.firstName);
+        setLastName(decoded.lastName || '');
+        setEmail(decoded.email);
+        setProfilePic(decoded.profilePic || 0);
+      } catch (err) {
+        console.error('Invalid token:', err);
+        localStorage.removeItem('token');
+        router.push('/login');
+      }
+    } else {
+      router.push('/login');
+    }
+  }, [router]);
 
   const handleSave = async () => {
     if (!user) {
@@ -29,15 +59,13 @@ const EditUser = () => {
     }
 
     try {
-      const updatedUser: User = {
-        ...user,
+      const updatedUser: Partial<User> = {
         firstName,
         lastName,
         email,
         profilePic,
       };
 
-      // Make a PUT request to update the user
       const res = await fetch(`/api/users/${user.id}`, {
         method: 'PUT',
         headers: {
@@ -53,8 +81,11 @@ const EditUser = () => {
         return;
       }
 
-      // Update localStorage and notify user
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      const newToken = await res.text(); // Assume the server returns the updated token
+      localStorage.setItem('token', newToken);
+
+      const decoded = jwtDecode<User>(newToken);
+      setUser(decoded);
       alert('Profile updated!');
       router.push('/');
     } catch (error) {
@@ -62,6 +93,10 @@ const EditUser = () => {
       alert('An error occurred while updating your profile. Please try again.');
     }
   };
+
+  if (!user) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div style={{ padding: '1rem' }}>

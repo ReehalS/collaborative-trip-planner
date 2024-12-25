@@ -5,6 +5,8 @@ import { Loader } from '@googlemaps/js-api-loader';
 import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+import { User } from '../../_types'
 
 const VALIDATE_JOIN_CODE_QUERY = gql`
   query ValidateJoinCode($joinCode: String!) {
@@ -87,7 +89,7 @@ const CreateTripPage = () => {
       });
 
       const data = await response.json();
-      console.log(data);
+
       if (data.latitude && data.longitude) {
         setLatitude(data.latitude);
         setLongitude(data.longitude);
@@ -209,7 +211,8 @@ const CreateTripPage = () => {
     }
 
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const token = localStorage.getItem('token');
+      const user = jwtDecode<{ exp: number } & User>(token);
       const userId = user.id;
 
       if (!userId) {
@@ -230,7 +233,7 @@ const CreateTripPage = () => {
       };
 
       const response = await sendApolloRequest(CREATE_TRIP_MUTATION, variables);
-      console.log(response);
+
       if (response.data.createTrip) {
         const tripId = response.data.createTrip.id;
         router.push(`/trips/${tripId}`); // Navigate to the new trip's page

@@ -2,15 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName?: string;
-  profilePic?: number;
-}
+import { jwtDecode } from "jwt-decode";
+import { User } from '../_types'
 
 const IndexPage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -18,26 +11,24 @@ const IndexPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
 
-    if (token && storedUser) {
+    if (token) {
       try {
-        const decodedToken = jwtDecode<{ exp: number }>(token);
+        const decodedToken = jwtDecode<{ exp: number } & User>(token);
 
         if (decodedToken.exp * 1000 < Date.now()) {
           console.log('Token expired, clearing storage.');
           localStorage.removeItem('token');
-          localStorage.removeItem('user');
           router.push('/login');
           return;
         }
 
-        const parsedUser = JSON.parse(storedUser) as User;
-        setUser(parsedUser);
+        // Extract user information directly from the token
+        const { id, email, firstName, lastName, profilePic } = decodedToken;
+        setUser({ id, email, firstName, lastName, profilePic });
       } catch (err) {
-        console.error('Invalid token or user data:', err);
+        console.error('Invalid token:', err);
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
         router.push('/login');
       }
     } else {

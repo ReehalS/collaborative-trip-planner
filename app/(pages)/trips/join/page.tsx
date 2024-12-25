@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
+import { jwtDecode } from 'jwt-decode';
+import { User } from '../../_types'
 
 const FIND_TRIP_BY_JOIN_CODE = gql`
   query FindTripByJoinCode($joinCode: String!) {
@@ -31,12 +33,11 @@ const JoinTripPage = () => {
 
   const handleJoin = async () => {
     try {
-      console.log(joinCode)
-      // Validate join code
+
       const findTripResponse = await sendApolloRequest(FIND_TRIP_BY_JOIN_CODE, {
         joinCode,
       });
-      console.log(findTripResponse)
+
       const trip = findTripResponse.data.tripByJoinCode;
 
       if (!trip) {
@@ -45,7 +46,8 @@ const JoinTripPage = () => {
       }
 
       // Add user to trip
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const token = localStorage.getItem('token');
+      const user = jwtDecode<{ exp: number } & User>(token);
       const userId = user.id;
 
       if (!userId) {

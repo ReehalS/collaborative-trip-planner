@@ -5,6 +5,8 @@ import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation'; // Import Next.js router
 import { Trip } from '../_types';
+import { jwtDecode } from 'jwt-decode';
+import { User } from '../_types'
 
 const GET_USER_TRIPS = gql`
   query GetUserTrips($userId: String!) {
@@ -24,11 +26,12 @@ const TripsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
+  const token = localStorage.getItem('token')
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        const user = jwtDecode<{ exp: number } & User>(token);
+        const userId = user.id;
 
         if (!userId) {
           setError('User not logged in.');

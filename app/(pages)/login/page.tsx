@@ -31,15 +31,8 @@ const Login = () => {
         return;
       }
 
-      const { token, user } = await res.json();
-
-      console.log(user);
-
-      // Save the token to localStorage or a cookie
+      const { token } = await res.json();
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // Redirect to homepage or desired route
       router.push('/');
     } catch (err) {
       console.error(err);

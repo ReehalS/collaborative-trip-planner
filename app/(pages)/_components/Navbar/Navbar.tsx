@@ -26,9 +26,8 @@ export default function Navbar({ navLinks }: { navLinks: NavLink[] }) {
   useEffect(() => {
     // Check if the user and token exist in localStorage
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
 
-    if (token && user) {
+    if (token) {
       setAuthenticated(true);
     } else {
       setAuthenticated(false);
@@ -37,8 +36,7 @@ export default function Navbar({ navLinks }: { navLinks: NavLink[] }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login'); // Redirect to login
+    router.push('/login');
   };
 
   return (
@@ -54,7 +52,6 @@ export default function Navbar({ navLinks }: { navLinks: NavLink[] }) {
                 </Link>
               );
             })}
-            {/* Add Logout button conditionally */}
             {authenticated && (
               <button className={styles.logout_button} onClick={handleLogout}>
                 Logout
