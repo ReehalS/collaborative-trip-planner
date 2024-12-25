@@ -27,6 +27,11 @@ const typeDefs = gql`
     profilePic: Int
     password: String
   }
+  
+  type UpdateUserResponse {
+    user: User!
+    token: String!
+  }
 
   type Query {
     user(id: ID!): User
@@ -35,7 +40,7 @@ const typeDefs = gql`
 
   type Mutation {
     createUser(input: UserInput!): User
-    updateUser(id: ID!, input: UserUpdateInput!): User
+    updateUser(id: ID!, input: UserUpdateInput!): UpdateUserResponse
     deleteUser(id: ID!): Boolean
   }
 `;

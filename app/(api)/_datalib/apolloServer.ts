@@ -13,21 +13,17 @@ const server = new ApolloServer({
 
 const handler = startServerAndCreateNextHandler(server, {
   context: async (req) => {
-    //console.log('in Context: ', req); // Debugging the context function
-
     const authHeader = req.headers.get('authorization') || '';
     const token = authHeader.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
       : null;
-
-    //console.log(authHeader);
 
     let userId = null;
 
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!);
-        userId = (decoded as any)?.id; // Ensure `userId` exists in the JWT payload
+        userId = (decoded as any)?.id;
       } catch (err) {
         console.warn('Invalid token:', err.message);
       }
@@ -37,10 +33,7 @@ const handler = startServerAndCreateNextHandler(server, {
       token,
       userId,
     };
-
-    //console.log('Auth in context:', auth); // Debug logging for context
-
-    return { auth }; // Pass `auth` to resolvers
+    return { auth };
   },
 });
 

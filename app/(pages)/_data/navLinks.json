@@ -4,16 +4,12 @@
       "slug": "/"
     },
     {
-      "name": "About Us",
-      "slug": "/about"
-    },
-    {
-      "name": "Examples",
+      "name": "Trips",
       "slug": "/trips"
     },
     {
-      "name": "Contact Us",
-      "slug": "/contact"
+      "name": "Edit Profile",
+      "slug": "/edit-profile"
     },
     {
       "name": "Sign Up",

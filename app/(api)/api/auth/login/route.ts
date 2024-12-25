@@ -34,7 +34,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Generate a JWT for the user
     const token = jwt.sign(
       {
         id: user.id,
@@ -43,11 +42,10 @@ export async function POST(req: Request) {
         lastName: user.lastName,
         profilePic: user.profilePic
       },
-      process.env.NEXTAUTH_SECRET as string, // Ensure this is set in your .env file
+      process.env.NEXTAUTH_SECRET as string,
       { expiresIn: '30d' }
     );
 
-    // Return the token and user information
     return NextResponse.json({
       message: 'Login successful',
       token,

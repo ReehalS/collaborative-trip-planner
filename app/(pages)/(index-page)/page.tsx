@@ -4,17 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from "jwt-decode";
 import { User } from '../_types';
-
-const profileColors = [
-  '#FF5733', // Red
-  '#33FF57', // Green
-  '#3357FF', // Blue
-  '#F3FF33', // Yellow
-  '#FF33A8', // Pink
-  '#33FFF3', // Cyan
-  '#A833FF', // Purple
-  '#FFC133', // Orange
-];
+import profileColors from '../_data/profileColors';
 
 const IndexPage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -34,7 +24,6 @@ const IndexPage = () => {
           return;
         }
 
-        // Extract user information directly from the token
         const { id, email, firstName, lastName, profilePic } = decodedToken;
         setUser({ id, email, firstName, lastName, profilePic });
       } catch (err) {
@@ -78,7 +67,7 @@ const IndexPage = () => {
           <button onClick={() => router.push('/activities')}>
             Go to Activities
           </button>
-          <button onClick={() => router.push('/edit-user')}>
+          <button onClick={() => router.push('/edit-profile')}>
             Edit Profile
           </button>
         </div>

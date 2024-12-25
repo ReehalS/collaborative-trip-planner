@@ -43,7 +43,7 @@ const TripsPage = () => {
 
         const variables = { userId };
         const response = await sendApolloRequest(GET_USER_TRIPS, variables);
-        console.log(response);
+
         if (response.data.userToTrips) {
           setTrips(response.data.userToTrips.map((ut) => ut.trip) || []);
         }

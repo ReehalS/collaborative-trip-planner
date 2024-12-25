@@ -6,18 +6,23 @@ import { jwtDecode } from 'jwt-decode';
 import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { User } from '../_types';
+import profileColors from '../_data/profileColors';
 
 const USER_UPDATE_MUTATION = gql`
   mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
     updateUser(id: $id, input: $input) {
-      id
-      firstName
-      lastName
-      email
-      profilePic
+      user {
+        id
+        firstName
+        lastName
+        email
+        profilePic
+      }
+      token
     }
   }
 `;
+
 
 const profilePics = Array.from({ length: 8 }, (_, i) => i + 1);
 
@@ -44,8 +49,6 @@ const EditUser = () => {
           router.push('/login');
           return;
         }
-
-        console.log(decoded)
         setUser(decoded);
         setFirstName(decoded.firstName);
         setLastName(decoded.lastName || '');
@@ -66,7 +69,7 @@ const EditUser = () => {
       alert('No user data found.');
       return;
     }
-
+  
     try {
       const variables = {
         id: user.id,
@@ -78,20 +81,19 @@ const EditUser = () => {
           ...(showPasswordField && password ? { password } : {}),
         },
       };
-      console.log(variables);
+  
       const response = await sendApolloRequest(USER_UPDATE_MUTATION, variables);
-      console.log(response);
+      console.log(response)
       if (!response?.data?.updateUser) {
         alert('Failed to update profile');
         return;
       }
-
-      // Update the token in localStorage with the new user data
-      const updatedUser = response.data.updateUser;
-      const newToken = JSON.stringify(updatedUser); // Assuming the server provides a new token or updated user info
+      
+      const { user: updatedUser, token: newToken } = response.data.updateUser;
+  
       localStorage.setItem('token', newToken);
-
       setUser(updatedUser);
+  
       alert('Profile updated!');
       router.push('/');
     } catch (error) {
@@ -166,22 +168,12 @@ const EditUser = () => {
           >
             Choose Profile Picture
           </button>
-          {/* Display the selected profile picture color */}
           <div
             style={{
               width: '20px',
               height: '20px',
               borderRadius: '50%',
-              backgroundColor: [
-                '#FF5733',
-                '#33FF57',
-                '#3357FF',
-                '#F3FF33',
-                '#FF33A8',
-                '#33FFF3',
-                '#A833FF',
-                '#FFC133',
-              ][(profilePic - 1) % 8], // Map profilePic to its color
+              backgroundColor: profileColors[(profilePic - 1) % 8], // Map profilePic to its color
               border: '1px solid #ddd',
             }}
           ></div>
@@ -201,13 +193,12 @@ const EditUser = () => {
           <h3>Choose Profile Picture</h3>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {profilePics.map((pic, index) => {
-              const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33A8', '#33FFF3', '#A833FF', '#FFC133'];
               return (
                 <button
                   key={pic}
                   onClick={() => setProfilePic(pic)}
                   style={{
-                    backgroundColor: colors[index % colors.length],
+                    backgroundColor: profileColors[index % profileColors.length],
                     color: 'white',
                     padding: '10px',
                     border: 'none',
