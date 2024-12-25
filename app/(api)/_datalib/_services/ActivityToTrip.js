@@ -5,6 +5,10 @@ export default class ActivityToTrip {
   static async create({ input }) {
     return prisma.activityToTrip.create({
       data: input,
+      include: {
+        activity: true,
+        trip: true,
+      },
     });
   }
 
@@ -12,6 +16,10 @@ export default class ActivityToTrip {
   static async find({ id }) {
     return prisma.activityToTrip.findUnique({
       where: { id },
+      include: {
+        activity: true,
+        trip: true,
+      },
     });
   }
 
@@ -19,6 +27,20 @@ export default class ActivityToTrip {
     return prisma.activityToTrip.findMany({
       where: {
         id: { in: ids },
+      },
+      include: {
+        activity: true,
+        trip: true,
+      },
+    });
+  }
+
+  static async findByTrip({ tripId }) {
+    return prisma.activityToTrip.findMany({
+      where: { tripId },
+      include: {
+        activity: true,
+        trip: true,
       },
     });
   }
@@ -29,6 +51,10 @@ export default class ActivityToTrip {
       return prisma.activityToTrip.update({
         where: { id },
         data: input,
+        include: {
+          activity: true,
+          trip: true,
+        },
       });
     } catch (e) {
       return null;

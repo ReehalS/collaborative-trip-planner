@@ -5,6 +5,8 @@ const typeDefs = gql`
     id: ID!
     activityId: String!
     tripId: String!
+    activity: Activity!
+    trip: Trip!
   }
 
   input ActivityToTripInput {
@@ -14,7 +16,7 @@ const typeDefs = gql`
 
   type Query {
     activityToTrip(id: ID!): ActivityToTrip
-    activityToTrips(ids: [ID!]!): [ActivityToTrip]
+    activityToTrips(ids: [ID!], tripId: String): [ActivityToTrip]
   }
 
   type Mutation {

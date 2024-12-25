@@ -2,9 +2,13 @@ import prisma from '../_prisma/client.js';
 
 export default class UserToTrip {
   // CREATE
-  static async create({ input }) {
+  static async create({ tripId, userId, role }) {
     return prisma.userToTrip.create({
-      data: input,
+      data: {
+        tripId,
+        userId,
+        role,
+      },
     });
   }
 
@@ -12,13 +16,23 @@ export default class UserToTrip {
   static async find({ id }) {
     return prisma.userToTrip.findUnique({
       where: { id },
+      include: {
+        trip: true,
+        user: true,
+      },
     });
   }
 
-  static async findMany({ ids }) {
+  static async findMany({ userId, tripId }) {
+    const whereClause = {};
+    if (userId) whereClause.userId = userId;
+    if (tripId) whereClause.tripId = tripId;
+
     return prisma.userToTrip.findMany({
-      where: {
-        id: { in: ids },
+      where: whereClause,
+      include: {
+        trip: true,
+        user: true,
       },
     });
   }
@@ -45,5 +59,14 @@ export default class UserToTrip {
     } catch (e) {
       return false;
     }
+  }
+
+  static async findMembersByTrip({ tripId }) {
+    return prisma.userToTrip.findMany({
+      where: { tripId },
+      include: {
+        user: true,
+      },
+    });
   }
 }

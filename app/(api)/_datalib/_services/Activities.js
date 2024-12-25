@@ -46,4 +46,38 @@ export default class Activities {
       return false;
     }
   }
+
+  // CAST VOTE
+  static async castVote({ activityId, input }) {
+    const { userId, score } = input;
+    const activity = await prisma.activity.findUnique({
+      where: { id: activityId },
+    });
+
+    if (!activity) {
+      throw new Error('Activity not found');
+    }
+
+    const votes = activity.voters || [];
+
+    const existingVoteIndex = votes.findIndex((vote) => vote.userId === userId);
+
+    if (existingVoteIndex !== -1) {
+      votes[existingVoteIndex].score = score;
+    } else {
+      votes.push({ userId, score });
+    }
+
+    const totalScore = votes.reduce((sum, vote) => sum + vote.score, 0);
+    const avgScore = totalScore / votes.length;
+
+    return prisma.activity.update({
+      where: { id: activityId },
+      data: {
+        voters: votes,
+        numVotes: votes.length,
+        avgScore,
+      },
+    });
+  }
 }

@@ -5,6 +5,8 @@ const typeDefs = gql`
     id: ID!
     userId: String!
     activityId: String!
+    activity: Activity!
+    user: User!
   }
 
   input UserToActivityInput {
@@ -12,15 +14,28 @@ const typeDefs = gql`
     activityId: String!
   }
 
+  input AuthInput {
+    token: String
+    userId: String
+  }
+
   type Query {
-    userToActivity(id: ID!): UserToActivity
-    userToActivities(ids: [ID!]!): [UserToActivity]
+    userToActivity(id: ID!, auth: AuthInput): UserToActivity
+    userToActivities(ids: [ID!]!, auth: AuthInput): [UserToActivity]
+    activitiesByUser(userId: String!, auth: AuthInput): [Activity!]!
   }
 
   type Mutation {
-    createUserToActivity(input: UserToActivityInput!): UserToActivity
-    updateUserToActivity(id: ID!, input: UserToActivityInput!): UserToActivity
-    deleteUserToActivity(id: ID!): Boolean
+    createUserToActivity(
+      input: UserToActivityInput!
+      auth: AuthInput
+    ): UserToActivity
+    updateUserToActivity(
+      id: ID!
+      input: UserToActivityInput!
+      auth: AuthInput
+    ): UserToActivity
+    deleteUserToActivity(id: ID!, auth: AuthInput): Boolean
   }
 `;
 

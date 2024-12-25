@@ -5,6 +5,10 @@ export default class UserToActivity {
   static async create({ input }) {
     return prisma.userToActivity.create({
       data: input,
+      include: {
+        user: true,
+        activity: true,
+      },
     });
   }
 
@@ -12,6 +16,10 @@ export default class UserToActivity {
   static async find({ id }) {
     return prisma.userToActivity.findUnique({
       where: { id },
+      include: {
+        user: true,
+        activity: true,
+      },
     });
   }
 
@@ -20,7 +28,22 @@ export default class UserToActivity {
       where: {
         id: { in: ids },
       },
+      include: {
+        user: true,
+        activity: true,
+      },
     });
+  }
+
+  static async findByUser(userId) {
+    return prisma.userToActivity
+      .findMany({
+        where: { userId },
+        include: {
+          activity: true,
+        },
+      })
+      .then((results) => results.map((uta) => uta.activity));
   }
 
   // UPDATE
@@ -29,6 +52,10 @@ export default class UserToActivity {
       return prisma.userToActivity.update({
         where: { id },
         data: input,
+        include: {
+          user: true,
+          activity: true,
+        },
       });
     } catch (e) {
       return null;

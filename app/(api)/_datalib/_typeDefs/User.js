@@ -6,6 +6,7 @@ const typeDefs = gql`
     email: String!
     firstName: String!
     lastName: String
+    password: String!
     profilePic: Int!
     trips: [UserToTrip]
     UserToActivity: [UserToActivity]
@@ -16,6 +17,15 @@ const typeDefs = gql`
     firstName: String!
     lastName: String
     profilePic: Int!
+    password: String!
+  }
+
+  input UserUpdateInput {
+    email: String
+    firstName: String
+    lastName: String
+    profilePic: Int
+    password: String # for password update
   }
 
   type Query {
@@ -25,7 +35,7 @@ const typeDefs = gql`
 
   type Mutation {
     createUser(input: UserInput!): User
-    updateUser(id: ID!, input: UserInput!): User
+    updateUser(id: ID!, input: UserUpdateInput!): User
     deleteUser(id: ID!): Boolean
   }
 `;

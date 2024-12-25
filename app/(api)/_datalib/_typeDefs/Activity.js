@@ -19,7 +19,7 @@ const typeDefs = gql`
     website: String
     phoneNumber: String
     numVotes: Int!
-    voters: [String]
+    voters: [VoteRecord!]!
     avgScore: Float!
     createdAt: String!
     trips: [ActivityToTrip]
@@ -44,6 +44,16 @@ const typeDefs = gql`
     phoneNumber: String
   }
 
+  input VoteInput {
+    userId: String!
+    score: Float!
+  }
+
+  type VoteRecord {
+    userId: String!
+    score: Float!
+  }
+
   type Query {
     activity(id: ID!): Activity
     activities(ids: [ID!]!): [Activity]
@@ -53,6 +63,7 @@ const typeDefs = gql`
     createActivity(input: ActivityInput!): Activity
     updateActivity(id: ID!, input: ActivityInput!): Activity
     deleteActivity(id: ID!): Boolean
+    castVote(activityId: ID!, input: VoteInput!): Activity
   }
 `;
 
