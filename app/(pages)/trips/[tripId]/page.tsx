@@ -229,6 +229,14 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       setError('Failed to delete trip.');
     }
   };
+  
+  const handleGoToCreateActivity = () => {
+    router.push(`/trips/${tripId}/create-activity`);
+  };
+
+  const handleGoToUsersPage = () => {
+    router.push(`/trips/${tripId}/members`);
+  };  
 
   if (!trip) return <p>Loading...</p>;
 
@@ -259,10 +267,40 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       </p>
       <p>Timezone: {trip.trip.timezone}</p>
       <div id="map" style={{ height: '500px', width: '100%' }}></div>
+      
       <button
+          onClick={handleGoToCreateActivity}
+          style={{
+            marginLeft: '10px',
+            backgroundColor: 'green',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Create Activity
+        </button>
+        <button
+          onClick={handleGoToUsersPage}
+          style={{
+            marginLeft: '10px',
+            backgroundColor: '#0275d8',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          View Trip Members
+        </button>
+        <button
         onClick={handleDeleteTrip}
         style={{
           marginTop: '20px',
+          marginLeft: '40px',
           backgroundColor: '#d9534f',
           color: 'white',
           padding: '10px 20px',

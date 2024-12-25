@@ -15,6 +15,10 @@ const resolvers = {
       }
       return UserToTrip.findMany(filter);
     },
+    tripMembers: async (_, { tripId }, { auth }) => {
+      if (!auth?.userId) throw new Error('Unauthorized');
+      return UserToTrip.findMembersByTrip({ tripId });
+    },
   },
   UserToTrip: {
     trip: async (parent) => {

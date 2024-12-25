@@ -43,6 +43,7 @@ const typeDefs = gql`
   type Query {
     userToTrip(id: ID!): UserToTrip
     userToTrips(filter: UserToTripFilter): [UserToTrip]
+    tripMembers(tripId: ID!): [UserToTrip]
   }
 
   input UserToTripFilter {
@@ -55,11 +56,6 @@ const typeDefs = gql`
     updateUserToTrip(id: ID!, input: UserToTripInput!): UserToTrip
     deleteUserToTrip(id: ID!): Boolean
     joinTrip(tripId: String!, userId: String!): UserToTrip
-  }
-
-  enum Role {
-    CREATOR
-    USER
   }
 `;
 

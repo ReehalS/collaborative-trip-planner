@@ -65,8 +65,14 @@ export default class UserToTrip {
     return prisma.userToTrip.findMany({
       where: { tripId },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
     });
-  }
+  }  
 }

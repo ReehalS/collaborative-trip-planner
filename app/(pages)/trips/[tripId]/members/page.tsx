@@ -6,16 +6,14 @@ import sendApolloRequest from '@utils/sendApolloRequest';
 
 const GET_TRIP_MEMBERS = gql`
   query GetTripMembers($tripId: ID!) {
-    trip(id: $tripId) {
+    tripMembers(tripId: $tripId) {
       id
-      users {
-        user {
-          id
-          firstName
-          lastName
-        }
-        role
+      user {
+        id
+        firstName
+        lastName
       }
+      role
     }
   }
 `;
@@ -31,9 +29,9 @@ const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
       try {
         const variables = { tripId };
         const response = await sendApolloRequest(GET_TRIP_MEMBERS, variables);
-
-        if (response.data.trip && response.data.trip.users) {
-          setMembers(response.data.trip.users);
+        console.log(response)
+        if (response.data.tripMembers) {
+          setMembers(response.data.tripMembers);
         } else {
           setError('No members found for this trip.');
         }
