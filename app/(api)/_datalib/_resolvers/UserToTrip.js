@@ -44,6 +44,10 @@ const resolvers = {
     joinTrip: async (_, { tripId, userId }, { auth }) => {
       if (!auth?.userId || auth.userId !== userId)
         throw new Error('Unauthorized');
+      let existingCopy = await UserToTrip.findMany({tripId , userId})
+      if(existingCopy.length>=0){
+        return existingCopy[0]
+      }
       return UserToTrip.create({ tripId, userId, role: 'USER' });
     },
   },
