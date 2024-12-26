@@ -7,9 +7,9 @@ const resolvers = {
       if (!auth?.userId) throw new Error('Unauthorized');
       return Activities.find({ id });
     },
-    activities: (_, { ids }, { auth }) => {
+    activities: (_, { filter }, { auth }) => {
       if (!auth?.userId) throw new Error('Unauthorized');
-      return Activities.findMany({ ids });
+      return Activities.findMany({ filter });
     },
   },
   Mutation: {

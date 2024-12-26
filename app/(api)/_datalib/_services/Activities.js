@@ -15,11 +15,18 @@ export default class Activities {
     });
   }
 
-  static async findMany({ ids }) {
+  static async findMany({ filter }) {
+    const whereClause = {};
+    if (filter?.tripId) whereClause.tripId = filter.tripId;
+    if (filter?.suggesterId) whereClause.suggesterId = filter.suggesterId;
+    if (filter?.city) whereClause.city = filter.city;
+    if (filter?.country) whereClause.country = filter.country;
+    if (filter?.category)
+      whereClause.categories = { has: filter.category };
+    if (filter?.userId) whereClause.suggesterId = filter.userId;
+
     return prisma.activity.findMany({
-      where: {
-        id: { in: ids },
-      },
+      where: whereClause,
     });
   }
 

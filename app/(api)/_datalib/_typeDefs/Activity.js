@@ -26,6 +26,15 @@ const typeDefs = gql`
     UserToActivity: [UserToActivity]
   }
 
+  input ActivityFilter {
+    tripId: String
+    suggesterId: String
+    city: String
+    country: String
+    category: String
+    userId: String
+  }
+
   input ActivityInput {
     tripId: String!
     suggesterId: String!
@@ -56,7 +65,7 @@ const typeDefs = gql`
 
   type Query {
     activity(id: ID!): Activity
-    activities(ids: [ID!]!): [Activity]
+    activities(filter: ActivityFilter): [Activity]
   }
 
   type Mutation {
