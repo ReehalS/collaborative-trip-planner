@@ -12,7 +12,17 @@ const CREATE_ACTIVITY_MUTATION = gql`
   mutation CreateActivity($input: ActivityInput!) {
     createActivity(input: $input) {
       id
+      tripId
       activityName
+      suggesterId
+      startTime
+      endTime
+      notes
+      categories
+      latitude
+      longitude
+      avgScore
+      numVotes
     }
   }
 `;
@@ -214,8 +224,8 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       const finalCity = city || activityCity;
 
       // Convert datetime-local to ISO-8601 DateTime string
-      const formattedStartTime = new Date(startTime).getTime() 
-      const formattedEndTime = new Date(endTime).getTime() 
+      const formattedStartTime = new Date(startTime).toISOString()
+      const formattedEndTime = new Date(endTime).toISOString()
 
       const variables = {
         input: {
@@ -239,6 +249,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
         CREATE_ACTIVITY_MUTATION,
         variables
       );
+      console.log(response)
       if (response.data.createActivity) {
         alert('Activity created successfully!');
         router.push(`/trips/${tripId}`);
