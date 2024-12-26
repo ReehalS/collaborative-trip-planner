@@ -1,22 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
-
-const GET_TRIP_MEMBERS = gql`
-  query GetTripMembers($tripId: ID!) {
-    tripMembers(tripId: $tripId) {
-      id
-      user {
-        id
-        firstName
-        lastName
-      }
-      role
-    }
-  }
-`;
+import { GET_TRIP_MEMBERS } from '../../../_utils/queries';
 
 const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
   const [members, setMembers] = useState([]);

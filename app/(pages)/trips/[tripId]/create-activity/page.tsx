@@ -2,58 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { Loader } from '@googlemaps/js-api-loader';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '../../../_types'
-
-const CREATE_ACTIVITY_MUTATION = gql`
-  mutation CreateActivity($input: ActivityInput!) {
-    createActivity(input: $input) {
-      id
-      tripId
-      activityName
-      suggesterId
-      startTime
-      endTime
-      notes
-      categories
-      latitude
-      longitude
-      avgScore
-      numVotes
-    }
-  }
-`;
-
-const GET_TRIP_DETAILS = gql`
-  query GetTripDetails($tripId: ID!) {
-    trip(id: $tripId) {
-      trip {
-        id
-        country
-        city
-        joinCode
-        latitude
-        longitude
-        timezone
-      }
-      activities {
-        id
-        activityName
-        startTime
-        endTime
-        notes
-        categories
-        latitude
-        longitude
-        avgScore
-        numVotes
-      }
-    }
-  }
-`;
+import { GET_TRIP_DETAILS, CREATE_ACTIVITY_MUTATION } from '../../../_utils/queries';
 
 const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
   const [activityName, setActivityName] = useState('');
@@ -81,7 +34,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     try {
       const variables = { tripId };
       const response = await sendApolloRequest(GET_TRIP_DETAILS, variables);
-      const data = response.data.trip.trip;
+      const data = response.data.trip;
 
       if (data?.latitude && data?.longitude) {
         setTripLatitude(data.latitude);
@@ -214,6 +167,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
 
     try {
       const token = localStorage.getItem('token');
+      if(!token) return;
       const user = jwtDecode<{ exp: number } & User>(token);
       const suggesterId = user.id;
 

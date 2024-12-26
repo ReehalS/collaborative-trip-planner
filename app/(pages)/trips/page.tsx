@@ -1,26 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation'; // Import Next.js router
 import { Trip } from '../_types';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '../_types';
-
-const GET_USER_TRIPS = gql`
-  query GetUserTrips($userId: String!) {
-    userToTrips(filter: { userId: $userId }) {
-      id
-      trip {
-        id
-        country
-        city
-        joinCode
-      }
-    }
-  }
-`;
+import { GET_USER_TRIPS } from '../_utils/queries';
 
 const TripsPage = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -32,7 +18,8 @@ const TripsPage = () => {
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const user = jwtDecode<{ exp: number } & User>(token || '');
+        if(!token) return;
+        const user = jwtDecode<{ exp: number } & User>(token);
         const userId = user.id;
 
         if (!userId) {

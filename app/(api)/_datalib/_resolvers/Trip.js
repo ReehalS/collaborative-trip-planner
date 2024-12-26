@@ -5,7 +5,7 @@ import Activities from '../_services/Activities.js';
 
 const resolvers = {
   Query: {
-    trip: async (_, { id }, { auth }) => {
+    tripWithActivities: async (_, { id }, { auth }) => {
       if (!auth?.userId) throw new Error('Unauthorized');
       const trip = await Trips.find({ id });
       if (!trip) {
@@ -18,6 +18,10 @@ const resolvers = {
       const activities = activityToTripRelations.map((relation) => relation.activity);
 
       return { trip: trip, activities: activities };
+    },
+    trip: (_, { id }, { auth }) => {
+      if (!auth?.userId) throw new Error('Unauthorized');
+      return Trips.find({ id });
     },
     trips: (_, { ids }, { auth }) => {
       if (!auth?.userId) throw new Error('Unauthorized');

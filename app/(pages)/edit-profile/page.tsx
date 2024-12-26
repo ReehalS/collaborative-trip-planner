@@ -3,26 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { User } from '../_types';
 import profileColors from '../_data/profileColors';
-
-const USER_UPDATE_MUTATION = gql`
-  mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
-    updateUser(id: $id, input: $input) {
-      user {
-        id
-        firstName
-        lastName
-        email
-        profilePic
-      }
-      token
-    }
-  }
-`;
-
+import { USER_UPDATE_MUTATION } from '../_utils/queries';
 
 const profilePics = Array.from({ length: 8 }, (_, i) => i + 1);
 
@@ -69,6 +53,10 @@ const EditUser = () => {
       alert('No user data found.');
       return;
     }
+
+    if(!firstName || !email){
+      alert("Please fill in the required fields of first name and email.")
+    }
   
     try {
       const variables = {
@@ -94,7 +82,6 @@ const EditUser = () => {
       localStorage.setItem('token', newToken);
       setUser(updatedUser);
   
-      alert('Profile updated!');
       router.push('/');
     } catch (error) {
       console.error('Failed to update profile:', error);

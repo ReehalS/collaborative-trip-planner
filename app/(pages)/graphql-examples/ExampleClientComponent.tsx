@@ -4,7 +4,7 @@ import { gql } from 'graphql-tag';
 import { useState } from 'react';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { jwtDecode } from 'jwt-decode';
-import { User } from '../_types'
+import { User } from '../_types';
 
 //  { auth }
 const query = gql`
@@ -28,6 +28,7 @@ export default function ExampleClientComponent() {
 
   const handleRequest = async () => {
     const token = localStorage.getItem('token');
+    if(!token) return;
     const user = jwtDecode<{ exp: number } & User>(token);
 
     const userId = user.id;

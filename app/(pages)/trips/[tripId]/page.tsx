@@ -1,59 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
 import { jwtDecode } from 'jwt-decode';
-import { User } from '../../_types'
-
-const GET_TRIP_DETAILS = gql`
-  query GetTripDetails($tripId: ID!) {
-    trip(id: $tripId) {
-      trip {
-        id
-        country
-        city
-        joinCode
-        latitude
-        longitude
-        timezone
-      }
-      activities {
-        id
-        activityName
-        startTime
-        endTime
-        notes
-        categories
-        latitude
-        longitude
-        avgScore
-        numVotes
-      }
-    }
-  }
-`;
-
-const DELETE_TRIP_MUTATION = gql`
-  mutation DeleteTrip($tripId: ID!) {
-    deleteTrip(id: $tripId)
-  }
-`;
-
-const CAST_VOTE_MUTATION = gql`
-  mutation CastVote($activityId: ID!, $input: VoteInput!) {
-    castVote(activityId: $activityId, input: $input) {
-      id
-      avgScore
-      numVotes
-    }
-  }
-`;
+import { User, Trip, Activity } from '../../_types'
+import { GET_TRIP_DETAILS, GET_TRIP_ACTIVITIES, DELETE_TRIP_MUTATION, CAST_VOTE_MUTATION } from '../../_utils/queries';
 
 const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
-  const [trip, setTrip] = useState(null);
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [timezone, setTimezone] = useState(0);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,10 +22,13 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
     const fetchTripDetails = async () => {
       try {
         const variables = { tripId };
-        const response = await sendApolloRequest(GET_TRIP_DETAILS, variables);
-        if (response.data.trip) {
-          setTrip(response.data.trip);
-          setTimezone(response.data.trip.trip.timezone);
+        const tripResponse = await sendApolloRequest(GET_TRIP_DETAILS, variables);
+        const activitiesResponse = await sendApolloRequest(GET_TRIP_ACTIVITIES, variables);
+        console.log(tripResponse, activitiesResponse)
+        if (tripResponse.data.trip && activitiesResponse.data.activities) {
+          setTrip(tripResponse.data.trip);
+          setActivities(activitiesResponse.data.activities);
+          setTimezone(tripResponse.data.trip.timezone);
         } else {
           setError('Trip not found.');
         }
@@ -82,7 +42,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   }, [tripId]);
 
   useEffect(() => {
-    if (trip && trip.trip) {
+    if (trip) {
       const loader = new Loader({
         apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API!,
         version: 'weekly',
@@ -95,8 +55,8 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
           document.getElementById('map') as HTMLElement,
           {
             center: {
-              lat: trip.trip.latitude,
-              lng: trip.trip.longitude,
+              lat: trip.latitude,
+              lng: trip.longitude,
             },
             zoom: 11,
             mapId: mapID,
@@ -108,10 +68,11 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   }, [trip]);
 
   const addMarkers = async () => {
-    if (map && trip.activities) {
+    if (map && activities) {
       const { AdvancedMarkerElement, PinElement } =
         await google.maps.importLibrary('marker');
-      trip.activities.forEach((activity) => {
+      console.log(activities)
+      activities.forEach((activity: Activity) => {
 
         const location = {
           lat: activity.latitude,
@@ -183,6 +144,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       return;
     }
     const token = localStorage.getItem('token');
+    if(!token) return;
     const user = jwtDecode<{ exp: number } & User>(token);
     const userId = user.id;
 
@@ -206,8 +168,8 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   }, [map]);
 
   const handleCopyToClipboard = () => {
-    if (trip?.trip.joinCode) {
-      navigator.clipboard.writeText(trip.trip.joinCode).then(() => {
+    if (trip?.joinCode) {
+      navigator.clipboard.writeText(trip.joinCode).then(() => {
         setCopySuccess('Copied!');
         setTimeout(() => setCopySuccess(null), 2000);
       });
@@ -243,8 +205,8 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   return (
     <div>
       <h1>Trip Details</h1>
-      <p>Country: {trip.trip.country}</p>
-      <p>City: {trip.trip.city || 'N/A'}</p>
+      <p>Country: {trip.country}</p>
+      <p>City: {trip.city || 'N/A'}</p>
       <p>
         Join Code:
         <span
@@ -261,11 +223,11 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
           }}
           title="Click to copy"
         >
-          {trip.trip.joinCode}
+          {trip.joinCode}
         </span>
         {copySuccess && <span style={{ marginLeft: '10px', color: 'green' }}>{copySuccess}</span>}
       </p>
-      <p>Timezone: {trip.trip.timezone}</p>
+      <p>Timezone: {trip.timezone}</p>
       <div id="map" style={{ height: '500px', width: '100%' }}></div>
       
       <button

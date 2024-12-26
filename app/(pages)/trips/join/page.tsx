@@ -2,29 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '../../_types'
-
-const FIND_TRIP_BY_JOIN_CODE = gql`
-  query FindTripByJoinCode($joinCode: String!) {
-    tripByJoinCode(joinCode: $joinCode) {
-      id
-      country
-      city
-    }
-  }
-`;
-
-const JOIN_TRIP_MUTATION = gql`
-  mutation JoinTrip($tripId: String!, $userId: String!) {
-    joinTrip(tripId: $tripId, userId: $userId) {
-      id
-      role
-    }
-  }
-`;
+import { FIND_TRIP_BY_JOIN_CODE, JOIN_TRIP_MUTATION } from '../../_utils/queries';
 
 const JoinTripPage = () => {
   const [joinCode, setJoinCode] = useState('');
@@ -33,7 +14,6 @@ const JoinTripPage = () => {
 
   const handleJoin = async () => {
     try {
-
       const findTripResponse = await sendApolloRequest(FIND_TRIP_BY_JOIN_CODE, {
         joinCode,
       });
@@ -45,8 +25,8 @@ const JoinTripPage = () => {
         return;
       }
 
-      // Add user to trip
       const token = localStorage.getItem('token');
+      if(!token) return;
       const user = jwtDecode<{ exp: number } & User>(token);
       const userId = user.id;
 

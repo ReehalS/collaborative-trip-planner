@@ -2,39 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import sendApolloRequest from '@utils/sendApolloRequest';
-import { jwtDecode } from 'jwt-decode';
-import { User, Activity } from '../_types';
-import { GET_USER_ACTIVITIES } from '../_utils/queries';
+import { Activity } from '../../../_types';
+import { GET_TRIP_ACTIVITIES } from '../../../_utils/queries';
+import { useRouter } from 'next/navigation';
 
-const ActivitiesPage = () => {
+const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const tripId = params.tripId;
 
   useEffect(() => {
-    const fetchActivities = async () => {
+    const fetchTripActivities = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('User not authenticated.');
-          return;
-        }
-
-        const user = jwtDecode<{ exp: number } & User>(token);
-        const userId = user.id;
-
-        if (!userId) {
-          setError('User ID not found.');
-          return;
-        }
-
-        const variables = { userId };
-        const response = await sendApolloRequest(GET_USER_ACTIVITIES, variables);
+        const variables = { tripId };
+        const response = await sendApolloRequest(GET_TRIP_ACTIVITIES, variables);
         console.log(response)
         if (response?.data?.activities) {
           setActivities(response.data.activities);
         } else {
-          setError('No activities found.');
+          setError('No activities found for this trip.');
         }
       } catch (err) {
         console.error('Failed to fetch activities:', err);
@@ -44,8 +32,12 @@ const ActivitiesPage = () => {
       }
     };
 
-    fetchActivities();
-  }, []);
+    fetchTripActivities();
+  }, [tripId]);
+
+  const handleBackToTrip = () => {
+    router.push(`/trips/${tripId}`);
+  };
 
   if (loading) {
     return <p>Loading...</p>;
@@ -56,12 +48,26 @@ const ActivitiesPage = () => {
   }
 
   if (!activities.length) {
-    return <p>No activities found.</p>;
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <p>No activities found for this trip.</p>
+        <button onClick={handleBackToTrip}>Back to Trip Details</button>
+      </div>
+    );
   }
 
   return (
     <div>
-      <h1>Your Activities</h1>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <h1>Trip Activities</h1>
+        <button onClick={handleBackToTrip}>Back to Trip Details</button>
+      </div>
       {activities.map((activity) => (
         <div
           key={activity.id}
@@ -91,4 +97,4 @@ const ActivitiesPage = () => {
   );
 };
 
-export default ActivitiesPage;
+export default TripActivitiesPage;

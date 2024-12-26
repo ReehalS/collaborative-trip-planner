@@ -2,33 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
-import { gql } from 'graphql-tag';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '../../_types'
-
-const VALIDATE_JOIN_CODE_QUERY = gql`
-  query ValidateJoinCode($joinCode: String!) {
-    validateJoinCode(joinCode: $joinCode) {
-      isValid
-    }
-  }
-`;
-
-const CREATE_TRIP_MUTATION = gql`
-  mutation CreateTrip($input: TripInput!) {
-    createTrip(input: $input) {
-      id
-      country
-      city
-      joinCode
-      latitude
-      longitude
-      timezone
-    }
-  }
-`;
+import { VALIDATE_JOIN_CODE_QUERY, CREATE_TRIP_MUTATION } from '../../_utils/queries';
 
 const CreateTripPage = () => {
   const [latitude, setLatitude] = useState(0); // Default latitude
@@ -212,6 +190,7 @@ const CreateTripPage = () => {
 
     try {
       const token = localStorage.getItem('token');
+      if(!token) return;
       const user = jwtDecode<{ exp: number } & User>(token);
       const userId = user.id;
 

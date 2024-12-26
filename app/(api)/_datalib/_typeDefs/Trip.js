@@ -34,7 +34,8 @@ const typeDefs = gql`
   }
 
   type Query {
-    trip(id: ID!): TripDetailsResponse
+    tripWithActivities(id: ID!): TripDetailsResponse
+    trip(id: ID!): Trip
     trips(ids: [ID!]!): [Trip]
     validateJoinCode(joinCode: String!): ValidateJoinCodeResponse
     tripByJoinCode(joinCode: String!): Trip
