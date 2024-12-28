@@ -5,6 +5,8 @@ model User {
   lastName       String?
   password       String
   profilePic     Int
+  resetPasswordToken  String?     @unique
+  resetPasswordExpires DateTime?
   trips          UserToTrip[]
   UserToActivity UserToActivity[]
 }

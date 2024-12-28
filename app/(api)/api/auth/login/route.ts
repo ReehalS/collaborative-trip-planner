@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        profilePic: user.profilePic
+        profilePic: user.profilePic,
       },
       process.env.NEXTAUTH_SECRET as string,
       { expiresIn: '30d' }

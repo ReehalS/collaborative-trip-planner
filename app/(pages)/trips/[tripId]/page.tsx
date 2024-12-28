@@ -5,8 +5,13 @@ import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
 import { jwtDecode } from 'jwt-decode';
-import { User, Trip, Activity } from '../../_types'
-import { GET_TRIP_DETAILS, GET_TRIP_ACTIVITIES, DELETE_TRIP_MUTATION, CAST_VOTE_MUTATION } from '../../_utils/queries';
+import { User, Trip, Activity } from '../../_types';
+import {
+  GET_TRIP_DETAILS,
+  GET_TRIP_ACTIVITIES,
+  DELETE_TRIP_MUTATION,
+  CAST_VOTE_MUTATION,
+} from '../../_utils/queries';
 
 const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   const [trip, setTrip] = useState<Trip | null>(null);
@@ -22,9 +27,15 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
     const fetchTripDetails = async () => {
       try {
         const variables = { tripId };
-        const tripResponse = await sendApolloRequest(GET_TRIP_DETAILS, variables);
-        const activitiesResponse = await sendApolloRequest(GET_TRIP_ACTIVITIES, variables);
-        console.log(tripResponse, activitiesResponse)
+        const tripResponse = await sendApolloRequest(
+          GET_TRIP_DETAILS,
+          variables
+        );
+        const activitiesResponse = await sendApolloRequest(
+          GET_TRIP_ACTIVITIES,
+          variables
+        );
+        console.log(tripResponse, activitiesResponse);
         if (tripResponse.data.trip && activitiesResponse.data.activities) {
           setTrip(tripResponse.data.trip);
           setActivities(activitiesResponse.data.activities);
@@ -71,9 +82,8 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
     if (map && activities) {
       const { AdvancedMarkerElement, PinElement } =
         await google.maps.importLibrary('marker');
-      console.log(activities)
+      console.log(activities);
       activities.forEach((activity: Activity) => {
-
         const location = {
           lat: activity.latitude,
           lng: activity.longitude,
@@ -95,14 +105,24 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
           content: `
             <div>
               <h3>${activity.activityName}</h3>
-              <p><strong>Start:</strong> ${formatTimestamp(activity.startTime)}</p>
+              <p><strong>Start:</strong> ${formatTimestamp(
+                activity.startTime
+              )}</p>
               <p><strong>End:</strong> ${formatTimestamp(activity.endTime)}</p>
               <p><strong>Notes:</strong> ${activity.notes || 'N/A'}</p>
-              <p><strong>Categories:</strong> ${activity.categories.join(', ')}</p>
-              <p><strong>Average Score:</strong> ${activity.avgScore || 'N/A'}</p>
-              <p><strong>Number of Voters:</strong> ${activity.numVotes || 0}</p>
+              <p><strong>Categories:</strong> ${activity.categories.join(
+                ', '
+              )}</p>
+              <p><strong>Average Score:</strong> ${
+                activity.avgScore || 'N/A'
+              }</p>
+              <p><strong>Number of Voters:</strong> ${
+                activity.numVotes || 0
+              }</p>
               <label>Rate this activity:</label>
-              <input type="number" id="rating-${activity.id}" min="0" max="5" step="0.5">
+              <input type="number" id="rating-${
+                activity.id
+              }" min="0" max="5" step="0.5">
               <button id="vote-button-${activity.id}">Vote</button>
             </div>
           `,
@@ -113,7 +133,9 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
 
           // Dynamically bind the vote functionality
           setTimeout(() => {
-            const voteButton = document.getElementById(`vote-button-${activity.id}`);
+            const voteButton = document.getElementById(
+              `vote-button-${activity.id}`
+            );
             if (voteButton) {
               voteButton.onclick = () => castVote(activity.id);
             }
@@ -122,14 +144,12 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       });
     }
   };
-  
+
   const formatTimestamp = (timestamp: string) => {
-    let timestampNumeric = Number(timestamp);
-    let timezoneNumeric = Number(timezone);
-    let time = timestampNumeric+timezoneNumeric;
-    const date = new Date(
-      time
-    );
+    const timestampNumeric = Number(timestamp);
+    const timezoneNumeric = Number(timezone);
+    const time = timestampNumeric + timezoneNumeric;
+    const date = new Date(time);
     return `${date.toLocaleTimeString()} on ${date.toLocaleDateString()}`;
   };
 
@@ -144,7 +164,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       return;
     }
     const token = localStorage.getItem('token');
-    if(!token) return;
+    if (!token) return;
     const user = jwtDecode<{ exp: number } & User>(token);
     const userId = user.id;
 
@@ -191,14 +211,14 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       setError('Failed to delete trip.');
     }
   };
-  
+
   const handleGoToCreateActivity = () => {
     router.push(`/trips/${tripId}/create-activity`);
   };
 
   const handleGoToUsersPage = () => {
     router.push(`/trips/${tripId}/members`);
-  };  
+  };
 
   if (!trip) return <p>Loading...</p>;
 
@@ -225,40 +245,44 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         >
           {trip.joinCode}
         </span>
-        {copySuccess && <span style={{ marginLeft: '10px', color: 'green' }}>{copySuccess}</span>}
+        {copySuccess && (
+          <span style={{ marginLeft: '10px', color: 'green' }}>
+            {copySuccess}
+          </span>
+        )}
       </p>
       <p>Timezone: {trip.timezone}</p>
       <div id="map" style={{ height: '500px', width: '100%' }}></div>
-      
+
       <button
-          onClick={handleGoToCreateActivity}
-          style={{
-            marginLeft: '10px',
-            backgroundColor: 'green',
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          Create Activity
-        </button>
-        <button
-          onClick={handleGoToUsersPage}
-          style={{
-            marginLeft: '10px',
-            backgroundColor: '#0275d8',
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          View Trip Members
-        </button>
-        <button
+        onClick={handleGoToCreateActivity}
+        style={{
+          marginLeft: '10px',
+          backgroundColor: 'green',
+          color: 'white',
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        Create Activity
+      </button>
+      <button
+        onClick={handleGoToUsersPage}
+        style={{
+          marginLeft: '10px',
+          backgroundColor: '#0275d8',
+          color: 'white',
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        View Trip Members
+      </button>
+      <button
         onClick={handleDeleteTrip}
         style={{
           marginTop: '20px',

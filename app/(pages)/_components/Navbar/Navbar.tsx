@@ -36,6 +36,9 @@ export default function Navbar({ navLinks }: { navLinks: NavLink[] }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    if (active) {
+      setInactive();
+    }
     router.push('/login');
   };
 

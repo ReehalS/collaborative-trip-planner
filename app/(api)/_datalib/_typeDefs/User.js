@@ -27,10 +27,18 @@ const typeDefs = gql`
     profilePic: Int
     password: String
   }
-  
+
   type UpdateUserResponse {
     user: User!
     token: String!
+  }
+
+  type ForgotPasswordResponse {
+    message: String!
+  }
+
+  type ResetPasswordResponse {
+    message: String!
   }
 
   type Query {
@@ -42,6 +50,8 @@ const typeDefs = gql`
     createUser(input: UserInput!): User
     updateUser(id: ID!, input: UserUpdateInput!): UpdateUserResponse
     deleteUser(id: ID!): Boolean
+    forgotPassword(email: String!): ForgotPasswordResponse!
+    resetPassword(token: String!, newPassword: String!): ResetPasswordResponse!
   }
 `;
 

@@ -17,8 +17,11 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
     const fetchTripActivities = async () => {
       try {
         const variables = { tripId };
-        const response = await sendApolloRequest(GET_TRIP_ACTIVITIES, variables);
-        console.log(response)
+        const response = await sendApolloRequest(
+          GET_TRIP_ACTIVITIES,
+          variables
+        );
+        console.log(response);
         if (response?.data?.activities) {
           setActivities(response.data.activities);
         } else {
@@ -80,17 +83,35 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
           }}
         >
           <h2>{activity.activityName}</h2>
-          {activity.notes && <p><strong>Notes:</strong> {activity.notes}</p>}
+          {activity.notes && (
+            <p>
+              <strong>Notes:</strong> {activity.notes}
+            </p>
+          )}
           <p>
-            <strong>Time:</strong> {new Date(activity.startTime).toLocaleString()} -{' '}
+            <strong>Time:</strong>{' '}
+            {new Date(activity.startTime).toLocaleString()} -{' '}
             {new Date(activity.endTime).toLocaleString()}
           </p>
-          <p><strong>Location:</strong> {activity.city}, {activity.country}</p>
-          <p><strong>Address:</strong> {activity.address || 'N/A'}</p>
-          <p><strong>Categories:</strong> {activity.categories.join(', ')}</p>
-          <p><strong>Coordinates:</strong> {activity.latitude}, {activity.longitude}</p>
-          <p><strong>Average Score:</strong> {activity.avgScore || 'N/A'}</p>
-          <p><strong>Number of Votes:</strong> {activity.numVotes || 0}</p>
+          <p>
+            <strong>Location:</strong> {activity.city}, {activity.country}
+          </p>
+          <p>
+            <strong>Address:</strong> {activity.address || 'N/A'}
+          </p>
+          <p>
+            <strong>Categories:</strong> {activity.categories.join(', ')}
+          </p>
+          <p>
+            <strong>Coordinates:</strong> {activity.latitude},{' '}
+            {activity.longitude}
+          </p>
+          <p>
+            <strong>Average Score:</strong> {activity.avgScore || 'N/A'}
+          </p>
+          <p>
+            <strong>Number of Votes:</strong> {activity.numVotes || 0}
+          </p>
         </div>
       ))}
     </div>

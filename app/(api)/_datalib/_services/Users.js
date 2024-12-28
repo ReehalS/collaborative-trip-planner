@@ -62,4 +62,16 @@ export default class Users {
       return false;
     }
   }
+
+  static async findByEmail(email) {
+    return prisma.user.findUnique({
+      where: { email },
+    });
+  }
+
+  static async findByResetToken(resetPasswordToken) {
+    return prisma.user.findUnique({
+      where: { resetPasswordToken },
+    });
+  }
 }
