@@ -175,41 +175,46 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
       <Box className={styles.splitContainer}>
         <Box id="map" className={styles.map} />
         <Box className={styles.activityList}>
-          <List>
-            {activities.map((activity, index) => (
-              <ListItem
-                key={activity.id}
-                className={styles.activityItem}
-                onClick={() => handleActivityClick(index)}
-              >
-                <ListItemText
-                  primary={activity.activityName}
-                  secondary={`Time: ${formatTimestamp(
-                    activity.startTime,
-                    trip.timezone
-                  )} - ${formatTimestamp(activity.endTime, trip.timezone)}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-          <Button
-            variant="outlined"
-            color="primary"
-            fullWidth
-            onClick={() => router.push(`/trips/${tripId}/activities`)}
-          >
-            View All Activities
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            fullWidth
-            onClick={handleResetView}
-            style={{ marginTop: '10px' }}
-          >
-            Reset View
-          </Button>
+          <Box className={styles.activityItems}>
+            <List>
+              {activities.map((activity, index) => (
+                <ListItem
+                  key={activity.id}
+                  className={styles.activityItem}
+                  onClick={() => handleActivityClick(index)}
+                >
+                  <ListItemText
+                    primary={activity.activityName}
+                    secondary={`Time: ${formatTimestamp(
+                      activity.startTime,
+                      trip.timezone
+                    )} - ${formatTimestamp(activity.endTime, trip.timezone)}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+          <Box className={styles.stickyButtons}>
+            <Button
+              variant="outlined"
+              color="primary"
+              fullWidth
+              onClick={() => router.push(`/trips/${tripId}/activities`)}
+            >
+              View All Activities
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              onClick={handleResetView}
+              style={{ marginTop: '10px' }}
+            >
+              Reset View
+            </Button>
+          </Box>
         </Box>
+
       </Box>
       <Box className={styles.actions}>
         <Button

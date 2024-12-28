@@ -7,10 +7,21 @@ import sendApolloRequest from '@utils/sendApolloRequest';
 import { User } from '@utils/typeDefs';
 import profileColors from '@data/profileColors';
 import { USER_UPDATE_MUTATION } from '@utils/queries';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Grid,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  CircularProgress,
+} from '@mui/material';
+import { AiOutlineArrowLeft } from 'react-icons/ai';
 
-const profilePics = Array.from({ length: 8 }, (_, i) => i + 1);
-
-const EditUser = () => {
+export default function EditUser() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [firstName, setFirstName] = useState('');
@@ -20,6 +31,7 @@ const EditUser = () => {
   const [profilePic, setProfilePic] = useState(0);
   const [showDialog, setShowDialog] = useState(false);
   const [showPasswordField, setShowPasswordField] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,6 +50,7 @@ const EditUser = () => {
         setLastName(decoded.lastName || '');
         setEmail(decoded.email);
         setProfilePic(decoded.profilePic || 0);
+        setLoading(false);
       } catch (err) {
         console.error('Invalid token:', err);
         localStorage.removeItem('token');
@@ -56,6 +69,7 @@ const EditUser = () => {
 
     if (!firstName || !email) {
       alert('Please fill in the required fields of first name and email.');
+      return;
     }
 
     try {
@@ -71,7 +85,6 @@ const EditUser = () => {
       };
 
       const response = await sendApolloRequest(USER_UPDATE_MUTATION, variables);
-      console.log(response);
       if (!response?.data?.updateUser) {
         alert('Failed to update profile');
         return;
@@ -89,136 +102,164 @@ const EditUser = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   if (!user) {
     return <p>Loading...</p>;
   }
 
+  const SelectedIcon = profileColors[profilePic - 1]?.icon;
+
   return (
-    <div style={{ padding: '1rem' }}>
-      <h1>Edit Profile</h1>
-      <div>
-        <label>First Name:</label>
-        <input
+    <Box sx={{ p: 4 }}>
+      <Button
+        startIcon={<AiOutlineArrowLeft />}
+        onClick={() => router.push('/')}
+        variant="outlined"
+        sx={{ mb: 2 }}
+      >
+        Back
+      </Button>
+      <Typography variant="h4" gutterBottom>
+        Edit Profile
+      </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <TextField
+          label="First Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
+          required
         />
-      </div>
-      <div>
-        <label>Last Name:</label>
-        <input value={lastName} onChange={(e) => setLastName(e.target.value)} />
-      </div>
-      <div>
-        <label>Email:</label>
-        <input
+        <TextField
+          label="Last Name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
+        <TextField
+          label="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
-      </div>
-      <div>
-        <label>Password:</label>
         {!showPasswordField ? (
-          <button
+          <Button
             onClick={() => setShowPasswordField(true)}
-            style={{
-              backgroundColor: '#0275d8',
-              color: 'white',
-              padding: '5px 10px',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            variant="outlined"
+            color="primary"
           >
             Change Password
-          </button>
+          </Button>
         ) : (
-          <input
+          <TextField
+            label="New Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         )}
-      </div>
-      <div>
-        <label>Profile Picture:</label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button
-            onClick={() => setShowDialog(true)}
-            style={{
-              backgroundColor: '#0275d8',
-              color: 'white',
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
+        <Box>
+          <Typography>Profile Picture:</Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              mt: 1,
             }}
           >
-            Choose Profile Picture
-          </button>
-          <div
-            style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '50%',
-              backgroundColor: profileColors[(profilePic - 1) % 8], // Map profilePic to its color
-              border: '1px solid #ddd',
-            }}
-          ></div>
-        </div>
-      </div>
-
-      {showDialog && (
-        <div
-          style={{
-            position: 'absolute',
-            backgroundColor: 'white',
-            padding: '1rem',
-            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-            borderRadius: '8px',
-          }}
+            <Button
+              onClick={() => setShowDialog(true)}
+              variant="contained"
+              color="primary"
+            >
+              Choose Profile Picture
+            </Button>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor:
+                  profileColors[profilePic - 1]?.background || '#ccc',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid #ddd',
+              }}
+            >
+              {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
+            </Box>
+          </Box>
+        </Box>
+        <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
+          <DialogTitle>Choose Profile Picture</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={9}>
+              {profileColors.map((color, index) => {
+                const Icon = color.icon;
+                return (
+                  <Grid item xs={1} key={index}>
+                    <Button
+                      fullWidth
+                      onClick={() => {
+                        setProfilePic(index + 1);
+                        setShowDialog(false);
+                      }}
+                      sx={{
+                        backgroundColor: color.background,
+                        borderRadius: '50%',
+                        maxWidth: '50px',
+                        minWidth: '50px',
+                        minHeight: '50px',
+                        maxHeight: '50px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        '&:hover': {
+                          backgroundColor: color.background,
+                        },
+                      }}
+                    >
+                      {Icon && <Icon size={24} color="#fff" />}
+                    </Button>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setShowDialog(false)}
+              variant="contained"
+              color="secondary"
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          color="success"
+          fullWidth
         >
-          <h3>Choose Profile Picture</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {profilePics.map((pic, index) => {
-              return (
-                <button
-                  key={pic}
-                  onClick={() => setProfilePic(pic)}
-                  style={{
-                    backgroundColor:
-                      profileColors[index % profileColors.length],
-                    color: 'white',
-                    padding: '10px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Picture {pic}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            onClick={() => setShowDialog(false)}
-            style={{
-              marginTop: '10px',
-              backgroundColor: '#d9534f',
-              color: 'white',
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-            }}
-          >
-            Close
-          </button>
-        </div>
-      )}
-      <button onClick={handleSave}>Save Changes</button>
-    </div>
+          Save Changes
+        </Button>
+      </Box>
+    </Box>
   );
-};
-
-export default EditUser;
+}
