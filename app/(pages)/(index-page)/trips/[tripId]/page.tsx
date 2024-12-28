@@ -30,7 +30,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<
-    google.maps.marker.AdvancedMarkerElement[]
+    { marker: google.maps.marker.AdvancedMarkerElement; infoWindow: google.maps.InfoWindow }[]
   >([]);
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
@@ -83,17 +83,39 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         (createdMarkers) => setMarkers(createdMarkers || [])
       );
     }
-  }, [map, activities]);   
+  }, [map, activities]);
 
   const handleActivityClick = (index: number) => {
     if (!map || !markers[index]) {
       console.error('Map or marker not available.');
       return;
     }
-  
-    const { position } = markers[index]; // Retrieve position
+
+    // Close all open info windows
+    markers.forEach(({ infoWindow }) => {
+      infoWindow.close();
+    });
+
+    const { marker, infoWindow } = markers[index];
+    const position = marker.position;
+
+    // Pan to the marker and open its info window
     map.panTo(position);
     map.setZoom(14);
+    infoWindow.open(map, marker);
+  };
+
+  const handleResetView = () => {
+    if (map && trip) {
+      // Close all open info windows
+      markers.forEach(({ infoWindow }) => {
+        infoWindow.close();
+      });
+
+      // Reset the map view
+      map.panTo({ lat: trip.latitude, lng: trip.longitude });
+      map.setZoom(11);
+    }
   };
 
   if (loading) {
@@ -162,7 +184,10 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
               >
                 <ListItemText
                   primary={activity.activityName}
-                  secondary={`Time: ${formatTimestamp(activity.startTime, trip.timezone)} - ${formatTimestamp(activity.endTime, trip.timezone)}`}
+                  secondary={`Time: ${formatTimestamp(
+                    activity.startTime,
+                    trip.timezone
+                  )} - ${formatTimestamp(activity.endTime, trip.timezone)}`}
                 />
               </ListItem>
             ))}
@@ -174,6 +199,15 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
             onClick={() => router.push(`/trips/${tripId}/activities`)}
           >
             View All Activities
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            fullWidth
+            onClick={handleResetView}
+            style={{ marginTop: '10px' }}
+          >
+            Reset View
           </Button>
         </Box>
       </Box>

@@ -10,7 +10,7 @@ export const addMarkers = async (
 ): Promise<
   {
     marker: google.maps.marker.AdvancedMarkerElement;
-    position: google.maps.LatLng;
+    infoWindow: google.maps.InfoWindow;
   }[]
 > => {
   if (!map || !activities) return [];
@@ -18,9 +18,9 @@ export const addMarkers = async (
   const { AdvancedMarkerElement, PinElement } =
     await google.maps.importLibrary('marker');
 
-  const markers: {
+  const markerInfoPairs: {
     marker: google.maps.marker.AdvancedMarkerElement;
-    position: google.maps.LatLng;
+    infoWindow: google.maps.InfoWindow;
   }[] = [];
 
   activities.forEach((activity) => {
@@ -40,8 +40,6 @@ export const addMarkers = async (
       content: pin.element,
       title: activity.activityName,
     });
-
-    markers.push({ marker, position }); // Save marker and its position
 
     const infoWindow = new google.maps.InfoWindow({
       content: `
@@ -83,7 +81,19 @@ export const addMarkers = async (
     });
 
     marker.addListener('click', () => {
-      infoWindow.open(map, marker);
+      // Close all other infoWindows
+      markerInfoPairs.forEach(({ infoWindow: otherInfoWindow }) => {
+        if (otherInfoWindow !== infoWindow) {
+          otherInfoWindow.close();
+        }
+      });
+
+      // Toggle this infoWindow
+      if (infoWindow.getMap()) {
+        infoWindow.close();
+      } else {
+        infoWindow.open(map, marker);
+      }
 
       setTimeout(() => {
         const voteButton = document.getElementById(
@@ -93,12 +103,14 @@ export const addMarkers = async (
           voteButton.onclick = async () => {
             await castVote(activity.id);
             await reloadActivities();
-            infoWindow.close(); // Close the info window after voting
+            infoWindow.close(); // Close after voting
           };
         }
       }, 100);
     });
+
+    markerInfoPairs.push({ marker, infoWindow });
   });
 
-  return markers; // Return marker-position pairs
+  return markerInfoPairs;
 };
