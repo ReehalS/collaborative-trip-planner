@@ -26,6 +26,7 @@
     "@hooks/*": ["./app/(pages)/_hooks/*"],
     "@contexts/*": ["./app/(pages)/_contexts/*"],
     "@utils/*": ["./app/(pages)/_utils/*"],   
+    "@types/*": ["./app/(pages)/_types/*"],
     "@actions/*": ["./app/(api)/_actions/*"],
     "@datalib/*": ["./app/(api)/_datalib/*"],
     }

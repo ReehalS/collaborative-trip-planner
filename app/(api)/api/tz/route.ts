@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const { latitude, longitude } = await request.json();
-
+    //console.log(request);
     if (latitude == null || longitude == null) {
       return NextResponse.json(
         { error: 'Latitude and Longitude are required' },
@@ -20,9 +20,8 @@ export async function POST(request: Request) {
     const data = await response.json();
 
     if (data.rawOffset !== undefined) {
-      const utcOffset = data.rawOffset*1000; // Convert seconds to milliseconds
-      const formattedOffset =
-        utcOffset >= 0 ? `${utcOffset}` : `-${utcOffset}`;
+      const utcOffset = data.rawOffset * 1000;
+      const formattedOffset = utcOffset >= 0 ? `${utcOffset}` : `-${utcOffset}`;
       return NextResponse.json({ timezone: formattedOffset });
     } else {
       return NextResponse.json(

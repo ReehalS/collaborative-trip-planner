@@ -4,8 +4,8 @@
     /* variables */
     --include-purple: #3c257e;
 
-    --primary: var(--include-purple);
-    --secondary: #e7c6f9;
+    --primary: #4fa1ff;
+    --secondary: #a1ccfd;
     --light-background: rgb(241, 240, 240);
     --dark-background: #0d303b;
 
@@ -55,4 +55,30 @@ h4 {
 }
 p {
     font-size: 1rem;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+html {
+    height: 100%;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--medium-spacer);
+}
+
+footer {
+    background-color: var(--dark-background);
+    color: var(--text-light);
+    text-align: center;
+    padding: var(--small-spacer) var(--tiny-spacer);
+    font-size: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }

@@ -4,7 +4,7 @@ import metadata from '@globals/metadata.json';
 
 import navLinks from '@data/navLinks.json';
 import Navbar from '@components/Navbar/Navbar';
-import Footer from './_components/Footer/Footer';
+import Footer from '@components/Footer/Footer';
 
 export { metadata };
 
@@ -15,9 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={fonts}>
+      <body className={`${fonts} rootLayout`}>
         <Navbar navLinks={navLinks} />
-        {children}
+        <main className="mainContent">{children}</main>
         <Footer />
       </body>
     </html>

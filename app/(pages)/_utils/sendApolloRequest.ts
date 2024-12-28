@@ -13,7 +13,6 @@ export default async function sendApolloRequest(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  //console.log(headers);
   // Pass headers to handleApolloRequest
   return handleApolloRequest(print(query), variables, revalidateCache, headers);
 }

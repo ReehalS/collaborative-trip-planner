@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from "jwt-decode";
-import { User } from '../_types';
+import { jwtDecode } from 'jwt-decode';
+import { User } from '@utils/typeDefs';
 import profileColors from '../_data/profileColors';
+import { Box, Typography, Button } from '@mui/material';
+import styles from './index-page.module.scss';
 
 const IndexPage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,7 +39,11 @@ const IndexPage = () => {
   }, [router]);
 
   const getProfileColor = (profilePicIndex: number | undefined) => {
-    if (profilePicIndex === undefined || profilePicIndex < 1 || profilePicIndex > 8) {
+    if (
+      profilePicIndex === undefined ||
+      profilePicIndex < 1 ||
+      profilePicIndex > 8
+    ) {
       return '#ddd'; // Default gray if no valid profilePic is set
     }
     return profileColors[(profilePicIndex - 1) % profileColors.length];
@@ -47,35 +53,57 @@ const IndexPage = () => {
     const profileColor = getProfileColor(user.profilePic);
 
     return (
-      <div style={{ padding: '1rem' }}>
-        <h1>Welcome back, {user.firstName}!</h1>
-        <p>Email: {user.email}</p>
-        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: profileColor,
-              border: '2px solid #ddd',
-            }}
-          ></div>
-          <p style={{ margin: 0 }}>Your Profile Color</p>
-        </div>
-        <div style={{ marginTop: '1rem' }}>
-          <button onClick={() => router.push('/trips')}>Go to Trips</button>
-          <button onClick={() => router.push('/activities')}>
+      <Box className={styles.container}>
+        <Typography variant="h4" className={styles.welcomeMessage}>
+          Welcome back, {user.firstName}!
+        </Typography>
+        <Typography variant="body1" className={styles.userDetails}>
+          Email: {user.email}
+        </Typography>
+        <Box className={styles.profileSection}>
+          <Box
+            className={styles.profilePic}
+            style={{ backgroundColor: profileColor }}
+          ></Box>
+          <Typography variant="body2" className={styles.profileText}>
+            Your Profile Color
+          </Typography>
+        </Box>
+        <Box className={styles.actions}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push('/trips')}
+            className={styles.actionButton}
+          >
+            Go to Trips
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push('/activities')}
+            className={styles.actionButton}
+          >
             Go to Activities
-          </button>
-          <button onClick={() => router.push('/edit-profile')}>
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push('/edit-profile')}
+            className={styles.actionButton}
+          >
             Edit Profile
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
     );
   }
 
-  return <p>Loading...</p>;
+  return (
+    <Typography variant="body1" className={styles.loading}>
+      Loading...
+    </Typography>
+  );
 };
 
 export default IndexPage;

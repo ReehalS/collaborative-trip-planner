@@ -1,0 +1,56 @@
+.container {
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+  
+  .welcomeMessage {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .userDetails {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .profileSection {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  
+    .profilePic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+    }
+  
+    .profileText {
+      margin: 0;
+      font-size: 1rem;
+      color: #555;
+    }
+  }
+  
+  .actions {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  
+    .actionButton {
+      width: 100%;
+      max-width: 200px;
+      margin: auto;
+    }
+  }
+  
+  .loading {
+    font-size: 1rem;
+    text-align: center;
+    color: #777;
+  }
+  
