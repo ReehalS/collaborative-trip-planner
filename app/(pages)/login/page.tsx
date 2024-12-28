@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { TextField, Button, Box, Typography, Link } from '@mui/material';
+import styles from './login.module.scss';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -41,27 +43,58 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <Box className={styles.loginContainer}>
+      <Box className={styles.loginBox}>
+        <Typography variant="h4" component="h1" className={styles.loginTitle}>
+          Login
+        </Typography>
+        <form onSubmit={handleSubmit} className={styles.loginForm}>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            fullWidth
+            margin="normal"
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            className={styles.loginButton}
+          >
+            Login
+          </Button>
+          {error && (
+            <Typography color="error" variant="body2" className={styles.error}>
+              {error}
+            </Typography>
+          )}
+          <Link
+            href="/forgot-password"
+            variant="body2"
+            className={styles.forgotPassword}
+          >
+            Forgot password?
+          </Link>
+          <Link href="/signup" variant="body2" className={styles.notAMember}>
+            Not a member yet? Sign Up
+          </Link>
+        </form>
+      </Box>
+    </Box>
   );
 };
 
