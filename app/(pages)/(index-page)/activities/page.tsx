@@ -1,16 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { jwtDecode } from 'jwt-decode';
 import { User, Activity } from '@utils/typeDefs';
 import { GET_USER_ACTIVITIES } from '@utils/queries';
+import {
+  Box,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  CircularProgress,
+} from '@mui/material';
+import { AiOutlineArrowLeft } from 'react-icons/ai';
 import styles from './activities.module.scss';
 
 const ActivitiesPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -34,7 +45,7 @@ const ActivitiesPage = () => {
           GET_USER_ACTIVITIES,
           variables
         );
-        console.log(response);
+
         if (response?.data?.activities) {
           setActivities(response.data.activities);
         } else {
@@ -52,64 +63,83 @@ const ActivitiesPage = () => {
   }, []);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <Box className={styles.loadingContainer}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <Typography className={styles.errorMessage}>
+        {error}
+      </Typography>
+    );
   }
 
   if (!activities.length) {
-    return <p>No activities found.</p>;
+    return (
+      <Typography className={styles.noActivitiesMessage}>
+        No activities found.
+      </Typography>
+    );
   }
 
   return (
-    <div>
-      <h1>Your Activities</h1>
-      {activities.map((activity) => (
-        <div
-          key={activity.id}
-          style={{
-            margin: '1rem 0',
-            padding: '1rem',
-            border: '1px solid #ddd',
-            borderRadius: '8px',
-            backgroundColor: '#f9f9f9',
-          }}
-        >
-          <h2>{activity.activityName}</h2>
-          {activity.notes && (
-            <p>
-              <strong>Notes:</strong> {activity.notes}
-            </p>
-          )}
-          <p>
-            <strong>Time:</strong>{' '}
-            {new Date(activity.startTime).toLocaleString()} -{' '}
-            {new Date(activity.endTime).toLocaleString()}
-          </p>
-          <p>
-            <strong>Location:</strong> {activity.city}, {activity.country}
-          </p>
-          <p>
-            <strong>Address:</strong> {activity.address || 'N/A'}
-          </p>
-          <p>
-            <strong>Categories:</strong> {activity.categories.join(', ')}
-          </p>
-          <p>
-            <strong>Coordinates:</strong> {activity.latitude},{' '}
-            {activity.longitude}
-          </p>
-          <p>
-            <strong>Average Score:</strong> {activity.avgScore || 'N/A'}
-          </p>
-          <p>
-            <strong>Number of Votes:</strong> {activity.numVotes || 0}
-          </p>
-        </div>
-      ))}
-    </div>
+    <Box className={styles.activitiesContainer}>
+      <Button
+        startIcon={<AiOutlineArrowLeft />}
+        onClick={() => router.push('/')}
+        variant="outlined"
+        className={styles.backButton}
+      >
+        Back
+      </Button>
+      <Typography variant="h4" className={styles.pageTitle}>
+        Your Activities
+      </Typography>
+      <Box className={styles.activitiesList}>
+        {activities.map((activity) => (
+          <Card key={activity.id} className={styles.activityCard}>
+            <CardContent>
+              <Typography variant="h6" className={styles.activityTitle}>
+                {activity.activityName}
+              </Typography>
+              {activity.notes && (
+                <Typography>
+                  <strong>Notes:</strong> {activity.notes}
+                </Typography>
+              )}
+              <Typography>
+                <strong>Time:</strong>{' '}
+                {new Date(activity.startTime).toLocaleString()} -{' '}
+                {new Date(activity.endTime).toLocaleString()}
+              </Typography>
+              <Typography>
+                <strong>Location:</strong> {activity.city}, {activity.country}
+              </Typography>
+              <Typography>
+                <strong>Address:</strong> {activity.address || 'N/A'}
+              </Typography>
+              <Typography>
+                <strong>Categories:</strong> {activity.categories.join(', ')}
+              </Typography>
+              <Typography>
+                <strong>Coordinates:</strong> {activity.latitude},{' '}
+                {activity.longitude}
+              </Typography>
+              <Typography>
+                <strong>Average Score:</strong> {activity.avgScore || 'N/A'}
+              </Typography>
+              <Typography>
+                <strong>Number of Votes:</strong> {activity.numVotes || 0}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
+    </Box>
   );
 };
 

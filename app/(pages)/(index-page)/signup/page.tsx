@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TextField, Button, Box, Typography, Link } from '@mui/material';
+import ProfilePicSelector from '@components/ProfilePicSelector/ProfilePicSelector';
+import profileColors from '@data/profileColors';
 import styles from './signup.module.scss';
 
 const Signup = () => {
@@ -10,6 +12,8 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [profilePic, setProfilePic] = useState(0); // Default profile picture index
+  const [showDialog, setShowDialog] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const router = useRouter();
@@ -30,6 +34,7 @@ const Signup = () => {
           password,
           firstName,
           lastName,
+          profilePic,
         }),
       });
 
@@ -46,6 +51,8 @@ const Signup = () => {
       setError('An error occurred during signup');
     }
   };
+
+  const SelectedIcon = profileColors[profilePic - 1]?.icon;
 
   return (
     <Box className={styles.signupContainer}>
@@ -88,6 +95,39 @@ const Signup = () => {
             required
             fullWidth
             margin="normal"
+          />
+          <Box>
+            <Typography>Profile Picture:</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+              <Button
+                onClick={() => setShowDialog(true)}
+                variant="contained"
+                color="primary"
+              >
+                Choose Profile Picture
+              </Button>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  backgroundColor:
+                    profileColors[profilePic - 1]?.background || '#ccc',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #ddd',
+                }}
+              >
+                {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
+              </Box>
+            </Box>
+          </Box>
+          <ProfilePicSelector
+            open={showDialog}
+            selectedProfilePic={profilePic}
+            onSelect={(index) => setProfilePic(index)}
+            onClose={() => setShowDialog(false)}
           />
           {error && (
             <Typography color="error" variant="body2">

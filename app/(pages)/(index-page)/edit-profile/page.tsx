@@ -1,25 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { User } from '@utils/typeDefs';
-import profileColors from '@data/profileColors';
 import { USER_UPDATE_MUTATION } from '@utils/queries';
+import ProfilePicSelector from '@components/ProfilePicSelector/ProfilePicSelector';
+import profileColors from '@data/profileColors';
+import { IconType } from 'react-icons';
 import {
   Box,
   Button,
   TextField,
   Typography,
-  Grid,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   CircularProgress,
 } from '@mui/material';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
+import styles from './editProfile.module.scss';
 
 export default function EditUser() {
   const router = useRouter();
@@ -29,9 +27,9 @@ export default function EditUser() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [profilePic, setProfilePic] = useState(0);
-  const [showDialog, setShowDialog] = useState(false);
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -104,14 +102,7 @@ export default function EditUser() {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
+      <Box className={styles.container}>
         <CircularProgress />
       </Box>
     );
@@ -124,141 +115,112 @@ export default function EditUser() {
   const SelectedIcon = profileColors[profilePic - 1]?.icon;
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Button
-        startIcon={<AiOutlineArrowLeft />}
-        onClick={() => router.push('/')}
-        variant="outlined"
-        sx={{ mb: 2 }}
-      >
-        Back
-      </Button>
-      <Typography variant="h4" gutterBottom>
-        Edit Profile
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <TextField
-          label="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-        />
-        <TextField
-          label="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        {!showPasswordField ? (
-          <Button
-            onClick={() => setShowPasswordField(true)}
-            variant="outlined"
-            color="primary"
-          >
-            Change Password
-          </Button>
-        ) : (
-          <TextField
-            label="New Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        )}
-        <Box>
-          <Typography>Profile Picture:</Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              mt: 1,
-            }}
-          >
-            <Button
-              onClick={() => setShowDialog(true)}
-              variant="contained"
-              color="primary"
-            >
-              Choose Profile Picture
-            </Button>
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                backgroundColor:
-                  profileColors[profilePic - 1]?.background || '#ccc',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid #ddd',
-              }}
-            >
-              {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
-            </Box>
+    <Box>
+      <Box>
+        <Button
+          startIcon={<AiOutlineArrowLeft />}
+          onClick={() => router.push('/')}
+          variant="outlined"
+          className={styles.backButton}
+        >
+          Back
+        </Button>
+        <Box className={styles.editContainer}>
+          <Box className={styles.editBox}>
+            <Typography variant="h4" component="h1" className={styles.editTitle}>
+              Edit Profile
+            </Typography>
+            <form onSubmit={handleSave} className={styles.editForm}>
+              <TextField
+                label="First Name"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Last Name"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                fullWidth
+                margin="normal"
+              />
+              {!showPasswordField ? (
+                <Button
+                  onClick={() => setShowPasswordField(true)}
+                  variant="outlined"
+                  color="primary"
+                  className={styles.changePasswordButton}
+                >
+                  Change Password
+                </Button>
+              ) : (
+                <TextField
+                  label="New Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+              <Box>
+                <Typography>Profile Picture:</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                  <Button
+                    onClick={() => setShowDialog(true)}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Choose Profile Picture
+                  </Button>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      backgroundColor:
+                        profileColors[profilePic - 1]?.background || '#ccc',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #ddd',
+                    }}
+                  >
+                    {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
+                  </Box>
+                </Box>
+              </Box>
+              <ProfilePicSelector
+                open={showDialog}
+                selectedProfilePic={profilePic}
+                onSelect={(index) => setProfilePic(index)}
+                onClose={() => setShowDialog(false)}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="success"
+                fullWidth
+                className={styles.saveButton}
+              >
+                Save Changes
+              </Button>
+            </form>
           </Box>
         </Box>
-        <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
-          <DialogTitle>Choose Profile Picture</DialogTitle>
-          <DialogContent>
-            <Grid container spacing={9}>
-              {profileColors.map((color, index) => {
-                const Icon = color.icon;
-                return (
-                  <Grid item xs={1} key={index}>
-                    <Button
-                      fullWidth
-                      onClick={() => {
-                        setProfilePic(index + 1);
-                        setShowDialog(false);
-                      }}
-                      sx={{
-                        backgroundColor: color.background,
-                        borderRadius: '50%',
-                        maxWidth: '50px',
-                        minWidth: '50px',
-                        minHeight: '50px',
-                        maxHeight: '50px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        '&:hover': {
-                          backgroundColor: color.background,
-                        },
-                      }}
-                    >
-                      {Icon && <Icon size={24} color="#fff" />}
-                    </Button>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => setShowDialog(false)}
-              variant="contained"
-              color="secondary"
-            >
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          color="success"
-          fullWidth
-        >
-          Save Changes
-        </Button>
       </Box>
     </Box>
   );

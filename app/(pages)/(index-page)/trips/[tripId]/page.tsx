@@ -21,6 +21,11 @@ import {
   List,
   ListItem,
   ListItemText,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import styles from './tripDetails.module.scss';
@@ -35,6 +40,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const router = useRouter();
   const tripId = params.tripId;
 
@@ -118,6 +124,11 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
     }
   };
 
+  const confirmDeleteTrip = async () => {
+    await handleDeleteTrip(tripId, router, setError);
+    setDeleteDialogOpen(false);
+  };
+
   if (loading) {
     return (
       <Box className={styles.loadingContainer}>
@@ -140,38 +151,78 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         startIcon={<AiOutlineArrowLeft />}
         onClick={() => router.back()}
         className={styles.backButton}
+        variant='outlined'
       >
         Back
       </Button>
       <Typography variant="h4" className={styles.title}>
         Trip Details
       </Typography>
-      <Card className={styles.tripDetailsCard}>
-        <CardContent>
-          <Typography>
-            <strong>Country:</strong> {trip.country}
-          </Typography>
-          <Typography>
-            <strong>City:</strong> {trip.city || 'N/A'}
-          </Typography>
-          <Typography>
-            <strong>Join Code:</strong>
-            <Tooltip title="Click to copy">
-              <span
-                onClick={() =>
-                  handleCopyToClipboard(trip.joinCode, setCopySuccess)
-                }
-                className={styles.joinCode}
-              >
-                {trip.joinCode}
-              </span>
-            </Tooltip>
-            {copySuccess && (
-              <span className={styles.copySuccess}>{copySuccess}</span>
-            )}
-          </Typography>
-        </CardContent>
-      </Card>
+      <Box className={styles.contentContainer}>
+        <Card className={styles.tripDetailsCard}>
+          <CardContent>
+            <Typography>
+              <strong>Country:</strong> {trip.country}
+            </Typography>
+            <Typography>
+              <strong>City:</strong> {trip.city || 'N/A'}
+            </Typography>
+            <Typography>
+              <strong>Join Code:</strong>
+              <Tooltip title="Click to copy">
+                <span
+                  onClick={() =>
+                    handleCopyToClipboard(trip.joinCode, setCopySuccess)
+                  }
+                  className={styles.joinCode}
+                >
+                  {trip.joinCode}
+                </span>
+              </Tooltip>
+              {copySuccess && (
+                <span className={styles.copySuccess}>{copySuccess}</span>
+              )}
+            </Typography>
+          </CardContent>
+        </Card>
+
+        <Box className={styles.actionsPane}>
+          
+          <Button
+            variant="outlined"
+            color="primary"
+            fullWidth
+            onClick={() => router.push(`/trips/${tripId}/members`)}
+          >
+            View Members
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => router.push(`/trips/${tripId}/activities`)}
+          >
+            View All Activities
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            fullWidth
+            onClick={() => router.push(`/trips/${tripId}/create-activity`)}
+          >
+            Create Activity
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            fullWidth
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            Delete Trip
+          </Button>
+        </Box>
+      </Box>
+
       <Box className={styles.splitContainer}>
         <Box id="map" className={styles.map} />
         <Box className={styles.activityList}>
@@ -199,14 +250,6 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
               variant="outlined"
               color="primary"
               fullWidth
-              onClick={() => router.push(`/trips/${tripId}/activities`)}
-            >
-              View All Activities
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
               onClick={handleResetView}
               style={{ marginTop: '10px' }}
             >
@@ -214,31 +257,27 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
             </Button>
           </Box>
         </Box>
+      </Box>
 
-      </Box>
-      <Box className={styles.actions}>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => router.push(`/trips/${tripId}/create-activity`)}
-        >
-          Create Activity
-        </Button>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => router.push(`/trips/${tripId}/members`)}
-        >
-          View Members
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => handleDeleteTrip(tripId, router, setError)}
-        >
-          Delete Trip
-        </Button>
-      </Box>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this trip? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="primary" autoFocus variant='contained'>
+            Cancel
+          </Button>
+          <Button onClick={confirmDeleteTrip} color="error" variant='outlined'>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -181,6 +181,7 @@ const CreateTripPage = () => {
         className={styles.backButton}
         startIcon={<AiOutlineArrowLeft />}
         onClick={() => router.back()}
+        variant='outlined'
       >
         Back
       </Button>

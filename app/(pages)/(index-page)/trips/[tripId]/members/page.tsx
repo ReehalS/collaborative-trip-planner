@@ -65,6 +65,7 @@ const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
         startIcon={<AiOutlineArrowLeft />}
         onClick={() => router.back()}
         className={styles.backButton}
+        variant='outlined'
       >
         Back
       </Button>

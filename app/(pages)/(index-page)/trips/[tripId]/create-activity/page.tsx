@@ -135,7 +135,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     }
   };
 
-  const validateTimes = () => {
+  const validateTimes = (startTime: string, endTime: string) => {
     if (startTime && endTime && new Date(endTime) < new Date(startTime)) {
       setTimeError('End time cannot be earlier than start time.');
       return false;
@@ -150,7 +150,7 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       return;
     }
 
-    if (!validateTimes()) return;
+    if (!validateTimes(startTime, endTime)) return;
 
     try {
       const token = localStorage.getItem('token');

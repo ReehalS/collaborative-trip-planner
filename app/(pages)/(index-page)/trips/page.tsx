@@ -80,11 +80,13 @@ const TripsPage = () => {
           className={styles.backButton}
           onClick={() => router.back()}
           startIcon={<AiOutlineArrowLeft />}
+          variant='outlined'
         >
           Back
         </Button>
         <Typography variant="h4">Your Trips</Typography>
-        <Box className={styles.navButtons}>
+        {trips.length !== 0 ? (
+          <Box className={styles.navButtons}>
           <Button
             variant="contained"
             color="primary"
@@ -102,6 +104,9 @@ const TripsPage = () => {
             Join Trip
           </Button>
         </Box>
+        ) : (
+        <Box className={styles.navButtonsBlank}></Box>
+          )}
       </Box>
 
       {/* Content */}

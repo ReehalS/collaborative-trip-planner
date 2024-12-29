@@ -38,19 +38,9 @@ const IndexPage = () => {
     }
   }, [router]);
 
-  const getProfileColor = (profilePicIndex: number | undefined) => {
-    if (
-      profilePicIndex === undefined ||
-      profilePicIndex < 1 ||
-      profilePicIndex > 8
-    ) {
-      return '#ddd'; // Default gray if no valid profilePic is set
-    }
-    return profileColors[(profilePicIndex - 1) % profileColors.length];
-  };
-
-  if (user) {
-    const profileColor = getProfileColor(user.profilePic);
+  if (user && user.profilePic) {
+    const profileColor = profileColors[user.profilePic - 1]?.background || '#ccc';
+    const ProfileIcon = profileColors[user.profilePic - 1]?.icon;
 
     return (
       <Box className={styles.container}>
@@ -63,10 +53,22 @@ const IndexPage = () => {
         <Box className={styles.profileSection}>
           <Box
             className={styles.profilePic}
-            style={{ backgroundColor: profileColor }}
-          ></Box>
+            sx={{
+              minWidth: 50,
+              maxWidth: 50,
+              minHeight: 50,
+              maxHeight: 50,
+              borderRadius: '50%',
+              backgroundColor: profileColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {ProfileIcon && <ProfileIcon size={40} color="#fff" />}
+          </Box>
           <Typography variant="body2" className={styles.profileText}>
-            Your Profile Color
+            Your Profile Picture
           </Typography>
         </Box>
         <Box className={styles.actions}>
