@@ -45,7 +45,7 @@ export default function Navbar({ navLinks }: { navLinks: NavLink[] }) {
   return (
     <div className={styles.relative_wrapper}>
       <div className={styles.container}>
-        <h2>LOGO IMG</h2>
+        <h3>Collarborative Planner</h3>
         <div className={styles.nav_container}>
           <div className={`${styles.links} ${active ? styles.active : null}`}>
             {navLinks.map((link) => {
