@@ -136,7 +136,7 @@ const CreateTripPage = () => {
     setError('');
     try {
       setLoading(true);
-      const timezoneValue = await fetchTimezone(latitude,longitude);
+      const timezoneValue = await fetchTimezone(latitude, longitude);
       if (!timezoneValue) {
         setError('Failed to fetch timezone.');
         return;
@@ -181,7 +181,7 @@ const CreateTripPage = () => {
         className={styles.backButton}
         startIcon={<AiOutlineArrowLeft />}
         onClick={() => router.back()}
-        variant='outlined'
+        variant="outlined"
       >
         Back
       </Button>
