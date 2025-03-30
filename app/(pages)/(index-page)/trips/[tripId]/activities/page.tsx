@@ -4,7 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchTripActivities } from '@utils/fetchTripActivities';
 import { Activity } from '@utils/typeDefs';
-import { Box, Button, Card, CardContent, Typography, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 import styles from './tripActivities.module.scss';
 
 const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
@@ -19,6 +26,7 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
       try {
         const fetchedActivities = await fetchTripActivities(tripId);
         setActivities(fetchedActivities);
+        console.log(fetchedActivities);
       } catch (err) {
         console.error('Failed to fetch activities:', err);
         setError('An error occurred while fetching activities.');
@@ -39,9 +47,7 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
   }
 
   if (error) {
-    return (
-      <Typography className={styles.error}>{error}</Typography>
-    );
+    return <Typography className={styles.error}>{error}</Typography>;
   }
 
   return (
@@ -61,7 +67,9 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
           <Card key={activity.id} className={styles.activityCard}>
             <CardContent>
               <Typography variant="h6">{activity.activityName}</Typography>
-              {activity.notes && <Typography>Notes: {activity.notes}</Typography>}
+              {activity.notes && (
+                <Typography>Notes: {activity.notes}</Typography>
+              )}
               <Typography>
                 Time: {new Date(activity.startTime).toLocaleString()} -{' '}
                 {new Date(activity.endTime).toLocaleString()}
@@ -70,11 +78,15 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
                 Location: {activity.city}, {activity.country}
               </Typography>
               <Typography>Address: {activity.address || 'N/A'}</Typography>
-              <Typography>Categories: {activity.categories.join(', ')}</Typography>
+              <Typography>
+                Categories: {activity.categories.join(', ')}
+              </Typography>
               <Typography>
                 Coordinates: {activity.latitude}, {activity.longitude}
               </Typography>
-              <Typography>Average Score: {activity.avgScore || 'N/A'}</Typography>
+              <Typography>
+                Average Score: {activity.avgScore || 'N/A'}
+              </Typography>
               <Typography>Number of Votes: {activity.numVotes || 0}</Typography>
             </CardContent>
           </Card>

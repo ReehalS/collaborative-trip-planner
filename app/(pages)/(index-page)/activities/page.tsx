@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import styles from './activities.module.scss';
+import formatTimestamp from '@utils/formatTimestamp';
 
 const ActivitiesPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -71,11 +72,7 @@ const ActivitiesPage = () => {
   }
 
   if (error) {
-    return (
-      <Typography className={styles.errorMessage}>
-        {error}
-      </Typography>
-    );
+    return <Typography className={styles.errorMessage}>{error}</Typography>;
   }
 
   if (!activities.length) {
@@ -112,9 +109,9 @@ const ActivitiesPage = () => {
                 </Typography>
               )}
               <Typography>
-                <strong>Time:</strong>{' '}
-                {new Date(activity.startTime).toLocaleString()} -{' '}
-                {new Date(activity.endTime).toLocaleString()}
+                <strong>Time:</strong>
+                {formatTimestamp(activity.startTime, activity.timezone)} to{' '}
+                {formatTimestamp(activity.endTime, activity.timezone)}
               </Typography>
               <Typography>
                 <strong>Location:</strong> {activity.city}, {activity.country}

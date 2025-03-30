@@ -35,7 +35,10 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<
-    { marker: google.maps.marker.AdvancedMarkerElement; infoWindow: google.maps.InfoWindow }[]
+    {
+      marker: google.maps.marker.AdvancedMarkerElement;
+      infoWindow: google.maps.InfoWindow;
+    }[]
   >([]);
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
@@ -151,7 +154,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         startIcon={<AiOutlineArrowLeft />}
         onClick={() => router.back()}
         className={styles.backButton}
-        variant='outlined'
+        variant="outlined"
       >
         Back
       </Button>
@@ -187,7 +190,6 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         </Card>
 
         <Box className={styles.actionsPane}>
-          
           <Button
             variant="outlined"
             color="primary"
@@ -239,7 +241,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
                     secondary={`Time: ${formatTimestamp(
                       activity.startTime,
                       trip.timezone
-                    )} - ${formatTimestamp(activity.endTime, trip.timezone)}`}
+                    )} to ${formatTimestamp(activity.endTime, trip.timezone)}`}
                   />
                 </ListItem>
               ))}
@@ -266,14 +268,20 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this trip? This action cannot be undone.
+            Are you sure you want to delete this trip? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="primary" autoFocus variant='contained'>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            color="primary"
+            autoFocus
+            variant="contained"
+          >
             Cancel
           </Button>
-          <Button onClick={confirmDeleteTrip} color="error" variant='outlined'>
+          <Button onClick={confirmDeleteTrip} color="error" variant="outlined">
             Delete
           </Button>
         </DialogActions>
