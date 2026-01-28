@@ -30,6 +30,8 @@ export interface Trip {
   longitude: number;
   timezone: string;
   users?: UserToTrip[];
+  activityCount?: number;
+  memberCount?: number;
 }
 
 export interface ActivityToTrip {

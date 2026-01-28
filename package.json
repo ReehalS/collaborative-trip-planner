@@ -14,6 +14,8 @@
     "db:view": "npx prisma studio"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.19",
+    "@ai-sdk/react": "^3.0.52",
     "@apollo/server": "^4.11.2",
     "@as-integrations/next": "^3.1.0",
     "@emotion/react": "^11.14.0",
@@ -21,6 +23,7 @@
     "@googlemaps/js-api-loader": "^1.16.8",
     "@mui/material": "^6.3.0",
     "@prisma/client": "^5.21.1",
+    "ai": "^6.0.50",
     "bcrypt": "^5.1.1",
     "graphql": "^16.9.0",
     "graphql-tag": "^2.12.6",
@@ -32,7 +35,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^4.12.0",
-    "sass": "^1.69.5"
+    "sass": "^1.69.5",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@graphql-tools/merge": "^9.0.8",

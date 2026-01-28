@@ -8,16 +8,10 @@ import { User } from '@utils/typeDefs';
 import { USER_UPDATE_MUTATION } from '@utils/queries';
 import ProfilePicSelector from '@components/ProfilePicSelector/ProfilePicSelector';
 import profileColors from '@data/profileColors';
-import { IconType } from 'react-icons';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
-import { AiOutlineArrowLeft } from 'react-icons/ai';
-import styles from './editProfile.module.scss';
+import { Button, TextField, Alert } from '@mui/material';
+import FormCard from '@components/FormCard/FormCard';
+import PageHeader from '@components/PageHeader/PageHeader';
+import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 
 export default function EditUser() {
   const router = useRouter();
@@ -30,6 +24,7 @@ export default function EditUser() {
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -60,13 +55,15 @@ export default function EditUser() {
   }, [router]);
 
   const handleSave = async () => {
+    setError(null);
+
     if (!user) {
-      alert('No user data found.');
+      setError('No user data found.');
       return;
     }
 
     if (!firstName || !email) {
-      alert('Please fill in the required fields of first name and email.');
+      setError('Please fill in the required fields of first name and email.');
       return;
     }
 
@@ -84,7 +81,7 @@ export default function EditUser() {
 
       const response = await sendApolloRequest(USER_UPDATE_MUTATION, variables);
       if (!response?.data?.updateUser) {
-        alert('Failed to update profile');
+        setError('Failed to update profile');
         return;
       }
 
@@ -96,41 +93,55 @@ export default function EditUser() {
       router.push('/');
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('An error occurred while updating your profile. Please try again.');
+      setError('An error occurred while updating your profile. Please try again.');
     }
   };
 
   if (loading) {
     return (
-      <Box className={styles.container}>
-        <CircularProgress />
-      </Box>
+      <div className="max-w-4xl mx-auto w-full px-6 py-8">
+        <LoadingSkeleton variant="form" />
+      </div>
     );
   }
 
   if (!user) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <p className="text-surface-500">Loading...</p>
+      </div>
+    );
   }
 
   const SelectedIcon = profileColors[profilePic - 1]?.icon;
 
   return (
-    <Box>
-      <Box>
-        <Button
-          startIcon={<AiOutlineArrowLeft />}
-          onClick={() => router.push('/')}
-          variant="outlined"
-          className={styles.backButton}
-        >
-          Back
-        </Button>
-        <Box className={styles.editContainer}>
-          <Box className={styles.editBox}>
-            <Typography variant="h4" component="h1" className={styles.editTitle}>
-              Edit Profile
-            </Typography>
-            <form onSubmit={handleSave} className={styles.editForm}>
+    <div className="max-w-4xl mx-auto w-full px-6 py-8 animate-fade-in">
+      <PageHeader title="Edit Profile" onBack={() => router.push('/')} />
+
+      {error && (
+        <Alert severity="error" className="mb-4">
+          {error}
+        </Alert>
+      )}
+
+      <div className="flex items-center justify-center">
+        <div className="bg-white rounded-card shadow-card p-8 w-full max-w-lg">
+          {/* Profile pic preview */}
+          <div className="flex justify-center mb-6">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center shadow-card"
+              style={{
+                backgroundColor:
+                  profileColors[profilePic - 1]?.background || '#e5e5e5',
+              }}
+            >
+              {SelectedIcon && <SelectedIcon size={40} color="#fff" />}
+            </div>
+          </div>
+
+          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <TextField
                 label="First Name"
                 type="text"
@@ -138,7 +149,6 @@ export default function EditUser() {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 fullWidth
-                margin="normal"
               />
               <TextField
                 label="Last Name"
@@ -146,82 +156,80 @@ export default function EditUser() {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 fullWidth
-                margin="normal"
               />
-              <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                fullWidth
-                margin="normal"
-              />
-              {!showPasswordField ? (
-                <Button
-                  onClick={() => setShowPasswordField(true)}
-                  variant="outlined"
-                  color="primary"
-                  className={styles.changePasswordButton}
-                >
-                  Change Password
-                </Button>
-              ) : (
-                <TextField
-                  label="New Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  fullWidth
-                  margin="normal"
-                />
-              )}
-              <Box>
-                <Typography>Profile Picture:</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-                  <Button
-                    onClick={() => setShowDialog(true)}
-                    variant="contained"
-                    color="primary"
-                  >
-                    Choose Profile Picture
-                  </Button>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      backgroundColor:
-                        profileColors[profilePic - 1]?.background || '#ccc',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #ddd',
-                    }}
-                  >
-                    {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
-                  </Box>
-                </Box>
-              </Box>
-              <ProfilePicSelector
-                open={showDialog}
-                selectedProfilePic={profilePic}
-                onSelect={(index) => setProfilePic(index)}
-                onClose={() => setShowDialog(false)}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="success"
-                fullWidth
-                className={styles.saveButton}
+            </div>
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              fullWidth
+            />
+
+            {!showPasswordField ? (
+              <button
+                type="button"
+                onClick={() => setShowPasswordField(true)}
+                className="text-sm text-primary-500 hover:text-primary-600 font-medium self-start hover:underline underline-offset-2 transition-colors"
               >
-                Save Changes
-              </Button>
-            </form>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+                Change Password
+              </button>
+            ) : (
+              <TextField
+                label="New Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                fullWidth
+              />
+            )}
+
+            {/* Profile picture selector */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-surface-700">
+                Profile Picture
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDialog(true)}
+                  className="px-4 py-2 text-sm font-medium text-primary-600 border border-primary-300 rounded-btn hover:bg-primary-50 transition-colors duration-200"
+                >
+                  Choose Avatar
+                </button>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-surface-200"
+                  style={{
+                    backgroundColor:
+                      profileColors[profilePic - 1]?.background || '#e5e5e5',
+                  }}
+                >
+                  {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
+                </div>
+              </div>
+            </div>
+
+            <ProfilePicSelector
+              open={showDialog}
+              selectedProfilePic={profilePic}
+              onSelect={(index) => setProfilePic(index)}
+              onClose={() => setShowDialog(false)}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="success"
+              fullWidth
+              size="large"
+              sx={{ mt: 1 }}
+            >
+              Save Changes
+            </Button>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }

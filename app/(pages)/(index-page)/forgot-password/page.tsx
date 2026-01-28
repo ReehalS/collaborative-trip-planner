@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { FORGOT_PASSWORD_MUTATION } from '@utils/queries';
-import { TextField, Button, Box, Typography } from '@mui/material';
-import styles from './forgotPassword.module.scss';
+import { TextField, Button } from '@mui/material';
+import Link from 'next/link';
+import FormCard from '@components/FormCard/FormCard';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -31,15 +32,11 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <Box className={styles.forgotPasswordContainer}>
-      <Box className={styles.forgotPasswordBox}>
-        <Typography
-          variant="h4"
-          component="h1"
-          className={styles.forgotPasswordTitle}
-        >
-          Forgot Password
-        </Typography>
+    <FormCard
+      title="Forgot your password?"
+      subtitle="Enter your email and we'll send you a reset link"
+    >
+      <div className="flex flex-col gap-4">
         <TextField
           label="Email"
           type="email"
@@ -47,33 +44,39 @@ const ForgotPasswordPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
-          margin="normal"
         />
+
         <Button
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          className={styles.resetButton}
           fullWidth
+          size="large"
         >
           Send Reset Email
         </Button>
+
         {message && (
-          <Typography
-            variant="body1"
-            color="success"
-            className={styles.message}
-          >
+          <div className="bg-success-light text-success-dark rounded-btn px-4 py-2 text-sm">
             {message}
-          </Typography>
+          </div>
         )}
         {error && (
-          <Typography variant="body1" color="error" className={styles.error}>
+          <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
             {error}
-          </Typography>
+          </div>
         )}
-      </Box>
-    </Box>
+
+        <div className="text-center mt-2">
+          <Link
+            href="/login"
+            className="text-sm text-primary-500 hover:text-primary-600 hover:underline underline-offset-2 transition-colors"
+          >
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    </FormCard>
   );
 };
 

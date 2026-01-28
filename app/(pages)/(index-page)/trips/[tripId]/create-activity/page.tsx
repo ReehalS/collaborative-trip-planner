@@ -1,26 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
 import { jwtDecode } from 'jwt-decode';
 import { fetchTripDetails } from '@utils/fetchTripDetails';
 import { CREATE_ACTIVITY_MUTATION } from '@utils/queries';
 import sendApolloRequest from '@utils/sendApolloRequest';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-  TextareaAutosize,
-} from '@mui/material';
+import { TextField, Button, Alert } from '@mui/material';
 import { Trip, Activity, User } from '@utils/typeDefs';
-import styles from './createActivity.module.scss';
+import PageHeader from '@components/PageHeader/PageHeader';
 
 const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
   const [trip, setTrip] = useState<Trip | null>(null);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [, setActivities] = useState<Activity[]>([]);
   const [activityName, setActivityName] = useState('');
   const [notes, setNotes] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -35,8 +28,16 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     useState<google.maps.marker.AdvancedMarkerElement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [timeError, setTimeError] = useState<string | null>(null);
+  const [autofillLoading, setAutofillLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const tripId = params.tripId;
+
+  // Pre-fill activity name from query param (e.g. from AI suggestion)
+  useEffect(() => {
+    const name = searchParams.get('name');
+    if (name) setActivityName(name);
+  }, [searchParams]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -45,7 +46,6 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       return;
     }
 
-    // Fetch trip details and activities
     fetchTripDetails(tripId, setTrip, setActivities, setError);
 
     const loader = new Loader({
@@ -135,6 +135,39 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     }
   };
 
+  const handleAutofill = async () => {
+    if (!address || !activityName) return;
+    setAutofillLoading(true);
+    try {
+      const res = await fetch('/api/ai/autofill-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          placeName: activityName || searchLocation,
+          address,
+          tripCity: trip?.city,
+          tripCountry: trip?.country,
+        }),
+      });
+      const data = await res.json();
+      if (data.notes) setNotes(data.notes);
+      if (data.categories) setCategories(data.categories);
+      if (data.suggestedStartTime && !startTime) {
+        // Build a date string for today with the suggested time
+        const today = new Date().toISOString().split('T')[0];
+        setStartTime(`${today}T${data.suggestedStartTime}`);
+      }
+      if (data.suggestedEndTime && !endTime) {
+        const today = new Date().toISOString().split('T')[0];
+        setEndTime(`${today}T${data.suggestedEndTime}`);
+      }
+    } catch (err) {
+      console.error('AI autofill error:', err);
+    } finally {
+      setAutofillLoading(false);
+    }
+  };
+
   const validateTimes = (startTime: string, endTime: string) => {
     if (startTime && endTime && new Date(endTime) < new Date(startTime)) {
       setTimeError('End time cannot be earlier than start time.');
@@ -187,7 +220,6 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       );
 
       if (response.data.createActivity) {
-        alert('Activity created successfully!');
         router.push(`/trips/${tripId}`);
       } else {
         setError('Failed to create activity.');
@@ -199,71 +231,151 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
   };
 
   return (
-    <Box className={styles.pageContainer}>
-      <Typography variant="h4" className={styles.title}>
-        Create Activity
-      </Typography>
-      {error && <Alert severity="error">{error}</Alert>}
-      {timeError && <Alert severity="error">{timeError}</Alert>}
-      <TextField
-        label="Activity Name"
-        value={activityName}
-        onChange={(e) => setActivityName(e.target.value)}
-        fullWidth
-        margin="normal"
-        required
+    <div className="max-w-6xl mx-auto w-full px-6 py-8 animate-fade-in">
+      <PageHeader
+        title="Create Activity"
+        onBack={() => router.push(`/trips/${tripId}`)}
       />
-      <TextareaAutosize
-        minRows={3}
-        placeholder="Notes"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        className={styles.textarea}
-      />
-      <TextField
-        label="Start Time"
-        type="datetime-local"
-        value={startTime}
-        onChange={(e) => setStartTime(e.target.value)}
-        fullWidth
-        margin="normal"
-        required
-        InputLabelProps={{ shrink: true }}
-      />
-      <TextField
-        label="End Time"
-        type="datetime-local"
-        value={endTime}
-        onChange={(e) => setEndTime(e.target.value)}
-        fullWidth
-        margin="normal"
-        required
-        InputLabelProps={{ shrink: true }}
-      />
-      <TextField
-        label="Search Location"
-        value={searchLocation}
-        onChange={(e) => setSearchLocation(e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      <Button
-        variant="contained"
-        onClick={handleSearchLocation}
-        className={styles.searchButton}
-      >
-        Search Location
-      </Button>
-      <div id="map" className={styles.map} />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSubmit}
-        className={styles.submitButton}
-      >
-        Create Activity
-      </Button>
-    </Box>
+
+      {error && (
+        <Alert severity="error" className="mb-4">
+          {error}
+        </Alert>
+      )}
+      {timeError && (
+        <Alert severity="error" className="mb-4">
+          {timeError}
+        </Alert>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Form */}
+        <div className="bg-white rounded-card shadow-card p-6 space-y-4">
+          <TextField
+            label="Activity Name"
+            value={activityName}
+            onChange={(e) => setActivityName(e.target.value)}
+            fullWidth
+            required
+            size="small"
+          />
+          <TextField
+            label="Notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            fullWidth
+            multiline
+            rows={3}
+            size="small"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <TextField
+              label="Start Time"
+              type="datetime-local"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              fullWidth
+              required
+              size="small"
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="End Time"
+              type="datetime-local"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              fullWidth
+              required
+              size="small"
+              InputLabelProps={{ shrink: true }}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <TextField
+              label="Search Location"
+              value={searchLocation}
+              onChange={(e) => setSearchLocation(e.target.value)}
+              fullWidth
+              size="small"
+            />
+            <Button
+              variant="contained"
+              onClick={handleSearchLocation}
+              sx={{ minWidth: 100, flexShrink: 0 }}
+            >
+              Search
+            </Button>
+          </div>
+
+          {address && (
+            <div className="flex items-center gap-2 text-sm text-surface-600 bg-surface-50 rounded-btn px-3 py-2">
+              <svg
+                className="w-4 h-4 text-primary-500 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              <span>{address}</span>
+            </div>
+          )}
+
+          {address && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleAutofill}
+              disabled={autofillLoading}
+              fullWidth
+            >
+              {autofillLoading ? 'Auto-filling...' : 'Auto-fill with AI'}
+            </Button>
+          )}
+
+          {categories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {categories.map((cat) => (
+                <span
+                  key={cat}
+                  className="text-xs font-medium bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full"
+                >
+                  {cat}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            fullWidth
+            size="large"
+          >
+            Create Activity
+          </Button>
+        </div>
+
+        {/* Map */}
+        <div
+          id="map"
+          className="h-[400px] lg:h-full lg:min-h-[500px] rounded-card border border-surface-200 overflow-hidden"
+        />
+      </div>
+    </div>
   );
 };
 

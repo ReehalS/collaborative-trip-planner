@@ -49,6 +49,8 @@ const GET_USER_TRIPS = gql`
         country
         city
         joinCode
+        activityCount
+        memberCount
       }
     }
   }

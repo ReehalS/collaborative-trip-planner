@@ -10,7 +10,6 @@ const castVote = async (activityId: string) => {
   const rating = parseFloat(ratingInput.value);
 
   if (!rating || rating < 0 || rating > 5) {
-    alert('Please provide a valid rating between 0 and 5.');
     return;
   }
   const token = localStorage.getItem('token');
@@ -20,12 +19,7 @@ const castVote = async (activityId: string) => {
 
   try {
     const variables = { activityId, input: { userId, score: rating } };
-    const response = await sendApolloRequest(CAST_VOTE_MUTATION, variables);
-    if (response.data.castVote) {
-      alert('Thanks for voting!');
-    } else {
-      alert('Failed to submit your vote.');
-    }
+    await sendApolloRequest(CAST_VOTE_MUTATION, variables);
   } catch (err) {
     console.error('Error voting activity:', err);
   }

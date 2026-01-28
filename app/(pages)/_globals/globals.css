@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --navbar-height: 64px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* Prevent Tailwind preflight from stripping MUI contained button backgrounds */
+.MuiButton-contained {
+  color: #fff !important;
+}
+.MuiButton-containedPrimary {
+  background-color: #3b82f6 !important;
+}
+.MuiButton-containedPrimary:hover {
+  background-color: #2563eb !important;
+}
+.MuiButton-containedSuccess {
+  background-color: #22c55e !important;
+}
+.MuiButton-containedSuccess:hover {
+  background-color: #16a34a !important;
+}
+.MuiButton-containedError {
+  background-color: #ef4444 !important;
+}
+.MuiButton-containedError:hover {
+  background-color: #dc2626 !important;
+}
+.MuiButton-contained.Mui-disabled {
+  background-color: #e0e0e0 !important;
+  color: #9e9e9e !important;
+}

@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TextField, Button, Box, Typography, Link } from '@mui/material';
-import styles from './login.module.scss';
+import { TextField } from '@mui/material';
+import Link from 'next/link';
+import FormCard from '@components/FormCard/FormCard';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -43,58 +44,57 @@ const Login = () => {
   };
 
   return (
-    <Box className={styles.loginContainer}>
-      <Box className={styles.loginBox}>
-        <Typography variant="h4" component="h1" className={styles.loginTitle}>
-          Login
-        </Typography>
-        <form onSubmit={handleSubmit} className={styles.loginForm}>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            fullWidth
-            margin="normal"
-          />
+    <FormCard title="Welcome back" subtitle="Sign in to your account">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <TextField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          fullWidth
+        />
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          fullWidth
+        />
 
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            className={styles.loginButton}
-          >
-            Login
-          </Button>
-          {error && (
-            <Typography color="error" variant="body2" className={styles.error}>
-              {error}
-            </Typography>
-          )}
+        {error && (
+          <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-btn transition-colors duration-200"
+        >
+          Sign In
+        </button>
+
+        <div className="flex flex-col items-center gap-2 mt-2">
           <Link
             href="/forgot-password"
-            variant="body2"
-            className={styles.forgotPassword}
+            className="text-sm text-primary-500 hover:text-primary-600 hover:underline underline-offset-2 transition-colors"
           >
             Forgot password?
           </Link>
-          <Link href="/signup" variant="body2" className={styles.notAMember}>
-            Not a member yet? Sign Up
+          <Link
+            href="/signup"
+            className="text-sm text-surface-500 hover:text-surface-700 transition-colors"
+          >
+            Not a member yet?{' '}
+            <span className="text-primary-500 font-medium hover:underline">
+              Sign Up
+            </span>
           </Link>
-        </form>
-      </Box>
-    </Box>
+        </div>
+      </form>
+    </FormCard>
   );
 };
 

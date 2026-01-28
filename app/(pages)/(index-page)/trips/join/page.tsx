@@ -6,8 +6,8 @@ import sendApolloRequest from '@utils/sendApolloRequest';
 import { jwtDecode } from 'jwt-decode';
 import { User } from '@utils/typeDefs';
 import { FIND_TRIP_BY_JOIN_CODE, JOIN_TRIP_MUTATION } from '@utils/queries';
-import { Box, TextField, Button, Typography } from '@mui/material';
-import styles from './joinTrip.module.scss';
+import { TextField, Button } from '@mui/material';
+import FormCard from '@components/FormCard/FormCard';
 
 const JoinTripPage = () => {
   const [joinCode, setJoinCode] = useState('');
@@ -57,35 +57,35 @@ const JoinTripPage = () => {
   };
 
   return (
-    <Box className={styles.pageContainer}>
-      <Typography variant="h4" className={styles.title}>
-        Join a Trip
-      </Typography>
-      {error && (
-        <Typography variant="body1" color="error" className={styles.error}>
-          {error}
-        </Typography>
-      )}
-      <Box className={styles.inputContainer}>
+    <FormCard title="Join a Trip" subtitle="Enter the join code shared with you">
+      <div className="flex flex-col gap-4">
+        {error && (
+          <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
+            {error}
+          </div>
+        )}
         <TextField
           label="Join Code"
           variant="outlined"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
           placeholder="Enter Join Code"
-          className={styles.inputField}
           fullWidth
+          inputProps={{
+            className: 'font-mono tracking-widest text-center text-lg',
+          }}
         />
         <Button
           variant="contained"
           color="primary"
           onClick={handleJoin}
-          className={styles.joinButton}
+          fullWidth
+          size="large"
         >
-          Join
+          Join Trip
         </Button>
-      </Box>
-    </Box>
+      </div>
+    </FormCard>
   );
 };
 

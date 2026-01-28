@@ -4,8 +4,9 @@ import { useState } from 'react';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { useRouter } from 'next/navigation';
 import { RESET_PASSWORD_MUTATION } from '@utils/queries';
-import { TextField, Button, Box, Typography, Link } from '@mui/material';
-import styles from './resetPassword.module.scss';
+import { TextField, Button } from '@mui/material';
+import Link from 'next/link';
+import FormCard from '@components/FormCard/FormCard';
 
 const ResetPasswordPage = ({
   searchParams,
@@ -42,16 +43,8 @@ const ResetPasswordPage = ({
   };
 
   return (
-    <Box className={styles.resetPasswordContainer}>
-      <Box className={styles.resetPasswordBox}>
-        <Typography
-          variant="h4"
-          component="h1"
-          className={styles.resetPasswordTitle}
-        >
-          Reset Password
-        </Typography>
-
+    <FormCard title="Set new password" subtitle="Enter your new password below">
+      <div className="flex flex-col gap-4">
         <TextField
           label="New Password"
           type="password"
@@ -59,40 +52,39 @@ const ResetPasswordPage = ({
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           fullWidth
-          margin="normal"
         />
+
         {message && (
-          <Typography
-            variant="body1"
-            color="success"
-            className={styles.message}
-          >
+          <div className="bg-success-light text-success-dark rounded-btn px-4 py-2 text-sm">
             {message}
-          </Typography>
+          </div>
         )}
         {error && (
-          <Typography variant="body1" color="error" className={styles.error}>
+          <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
             {error}
-          </Typography>
+          </div>
         )}
+
         <Button
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          className={styles.resetButton}
           fullWidth
+          size="large"
         >
           Reset Password
         </Button>
-        <Link
-          href="/forgot-password"
-          variant="body2"
-          className={styles.forgotPasswordLink}
-        >
-          Need a new reset link? Claim one here.
-        </Link>
-      </Box>
-    </Box>
+
+        <div className="text-center mt-2">
+          <Link
+            href="/forgot-password"
+            className="text-sm text-primary-500 hover:text-primary-600 hover:underline underline-offset-2 transition-colors"
+          >
+            Need a new reset link? Request one here.
+          </Link>
+        </div>
+      </div>
+    </FormCard>
   );
 };
 

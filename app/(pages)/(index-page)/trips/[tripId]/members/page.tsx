@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { GET_TRIP_MEMBERS } from '@utils/queries';
 import { useRouter } from 'next/navigation';
-import { Box, Typography, CircularProgress, Alert, List, ListItem, ListItemText, Button } from '@mui/material';
-import { AiOutlineArrowLeft } from 'react-icons/ai';
-import styles from './tripMembers.module.scss';
+import { Alert } from '@mui/material';
+import PageHeader from '@components/PageHeader/PageHeader';
+import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 
 const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
   const [members, setMembers] = useState([]);
@@ -44,46 +44,54 @@ const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
 
   if (loading) {
     return (
-      <Box className={styles.loadingContainer}>
-        <CircularProgress />
-      </Box>
+      <div className="max-w-2xl mx-auto w-full px-6 py-8">
+        <LoadingSkeleton variant="list" />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box className={styles.errorContainer}>
+      <div className="max-w-2xl mx-auto w-full px-6 py-8">
         <Alert severity="error">{error}</Alert>
-      </Box>
+      </div>
     );
   }
 
   return (
-    <Box className={styles.pageContainer}>
-      {/* Back Button */}
-      <Button
-        startIcon={<AiOutlineArrowLeft />}
-        onClick={() => router.back()}
-        className={styles.backButton}
-        variant='outlined'
-      >
-        Back
-      </Button>
-      
-      <Typography variant="h4" className={styles.title}>
-        Members of Trip
-      </Typography>
-      <List className={styles.membersList}>
+    <div className="max-w-2xl mx-auto w-full px-6 py-8 animate-fade-in">
+      <PageHeader title="Trip Members" />
+
+      <div className="bg-white rounded-card shadow-card divide-y divide-surface-100 overflow-hidden">
         {members.map((member: any) => (
-          <ListItem key={member.user.id} className={styles.memberItem}>
-            <ListItemText
-              primary={`${member.user.firstName} ${member.user.lastName}`}
-              secondary={`Role: ${member.role}`}
-            />
-          </ListItem>
+          <div
+            key={member.user.id}
+            className="flex items-center gap-3 p-4 hover:bg-surface-50 transition-colors duration-150"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-bold text-primary-600">
+                {member.user.firstName?.charAt(0)}
+                {member.user.lastName?.charAt(0)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-surface-900">
+                {member.user.firstName} {member.user.lastName}
+              </p>
+            </div>
+            <span
+              className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                member.role === 'CREATOR'
+                  ? 'bg-primary-50 text-primary-700'
+                  : 'bg-surface-100 text-surface-600'
+              }`}
+            >
+              {member.role === 'CREATOR' ? 'Creator' : 'Member'}
+            </span>
+          </div>
         ))}
-      </List>
-    </Box>
+      </div>
+    </div>
   );
 };
 

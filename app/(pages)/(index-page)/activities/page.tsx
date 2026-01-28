@@ -6,17 +6,11 @@ import sendApolloRequest from '@utils/sendApolloRequest';
 import { jwtDecode } from 'jwt-decode';
 import { User, Activity } from '@utils/typeDefs';
 import { GET_USER_ACTIVITIES } from '@utils/queries';
-import {
-  Box,
-  Button,
-  Typography,
-  Card,
-  CardContent,
-  CircularProgress,
-} from '@mui/material';
-import { AiOutlineArrowLeft } from 'react-icons/ai';
-import styles from './activities.module.scss';
-import formatTimestamp from '@utils/formatTimestamp';
+import PageHeader from '@components/PageHeader/PageHeader';
+import ActivityCard from '@components/ActivityCard/ActivityCard';
+import EmptyState from '@components/EmptyState/EmptyState';
+import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
+import { HiOutlineCalendar } from 'react-icons/hi';
 
 const ActivitiesPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -65,78 +59,44 @@ const ActivitiesPage = () => {
 
   if (loading) {
     return (
-      <Box className={styles.loadingContainer}>
-        <CircularProgress />
-      </Box>
+      <div className="max-w-4xl mx-auto w-full px-6 py-8">
+        <LoadingSkeleton variant="page" />
+      </div>
     );
   }
 
   if (error) {
-    return <Typography className={styles.errorMessage}>{error}</Typography>;
+    return (
+      <div className="max-w-4xl mx-auto w-full px-6 py-8">
+        <div className="bg-error-light text-error-dark rounded-btn px-4 py-3 text-sm text-center">
+          {error}
+        </div>
+      </div>
+    );
   }
 
   if (!activities.length) {
     return (
-      <Typography className={styles.noActivitiesMessage}>
-        No activities found.
-      </Typography>
+      <div className="max-w-4xl mx-auto w-full px-6 py-8">
+        <PageHeader title="Your Activities" onBack={() => router.push('/')} />
+        <EmptyState
+          icon={HiOutlineCalendar}
+          title="No activities yet"
+          description="Activities you create or join through trips will appear here."
+        />
+      </div>
     );
   }
 
   return (
-    <Box className={styles.activitiesContainer}>
-      <Button
-        startIcon={<AiOutlineArrowLeft />}
-        onClick={() => router.push('/')}
-        variant="outlined"
-        className={styles.backButton}
-      >
-        Back
-      </Button>
-      <Typography variant="h4" className={styles.pageTitle}>
-        Your Activities
-      </Typography>
-      <Box className={styles.activitiesList}>
+    <div className="max-w-4xl mx-auto w-full px-6 py-8 animate-fade-in">
+      <PageHeader title="Your Activities" onBack={() => router.push('/')} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {activities.map((activity) => (
-          <Card key={activity.id} className={styles.activityCard}>
-            <CardContent>
-              <Typography variant="h6" className={styles.activityTitle}>
-                {activity.activityName}
-              </Typography>
-              {activity.notes && (
-                <Typography>
-                  <strong>Notes:</strong> {activity.notes}
-                </Typography>
-              )}
-              <Typography>
-                <strong>Time:</strong>
-                {formatTimestamp(activity.startTime, activity.timezone)} to{' '}
-                {formatTimestamp(activity.endTime, activity.timezone)}
-              </Typography>
-              <Typography>
-                <strong>Location:</strong> {activity.city}, {activity.country}
-              </Typography>
-              <Typography>
-                <strong>Address:</strong> {activity.address || 'N/A'}
-              </Typography>
-              <Typography>
-                <strong>Categories:</strong> {activity.categories.join(', ')}
-              </Typography>
-              <Typography>
-                <strong>Coordinates:</strong> {activity.latitude},{' '}
-                {activity.longitude}
-              </Typography>
-              <Typography>
-                <strong>Average Score:</strong> {activity.avgScore || 'N/A'}
-              </Typography>
-              <Typography>
-                <strong>Number of Votes:</strong> {activity.numVotes || 0}
-              </Typography>
-            </CardContent>
-          </Card>
+          <ActivityCard key={activity.id} activity={activity} />
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

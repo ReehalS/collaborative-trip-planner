@@ -1,21 +1,14 @@
 'use client';
 
 import React from 'react';
-import {
-  Grid,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import profileColors from '@data/profileColors';
 
 interface ProfilePicSelectorProps {
-  open: boolean; // Controls the visibility of the dialog
-  selectedProfilePic: number; // The currently selected profile picture index
-  onSelect: (index: number) => void; // Callback for when a profile picture is selected
-  onClose: () => void; // Callback for closing the dialog
+  open: boolean;
+  selectedProfilePic: number;
+  onSelect: (index: number) => void;
+  onClose: () => void;
 }
 
 export default function ProfilePicSelector({
@@ -25,46 +18,37 @@ export default function ProfilePicSelector({
   onClose,
 }: ProfilePicSelectorProps) {
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Choose Profile Picture</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle className="font-display text-center text-lg font-bold text-surface-900">
+        Choose your avatar
+      </DialogTitle>
       <DialogContent>
-        <Grid container spacing={2}>
+        <div className="grid grid-cols-4 gap-3 p-2">
           {profileColors.map((color, index) => {
             const Icon = color.icon;
+            const isSelected = selectedProfilePic === index + 1;
             return (
-              <Grid item xs={3} key={index}>
-                <Button
-                  fullWidth
-                  onClick={() => {
-                    onSelect(index + 1);
-                    onClose();
-                  }}
-                  sx={{
-                    backgroundColor: color.background,
-                    borderRadius: '50%',
-                    width: 60,
-                    height: 60,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border:
-                      selectedProfilePic === index + 1
-                        ? '3px solid #000'
-                        : 'none',
-                    '&:hover': {
-                      backgroundColor: color.background,
-                    },
-                  }}
-                >
-                  {Icon && <Icon size={24} color="#fff" />}
-                </Button>
-              </Grid>
+              <button
+                key={index}
+                onClick={() => {
+                  onSelect(index + 1);
+                  onClose();
+                }}
+                className={`w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 hover:scale-110 mx-auto ${
+                  isSelected
+                    ? 'ring-2 ring-primary-500 ring-offset-2'
+                    : 'ring-0'
+                }`}
+                style={{ backgroundColor: color.background }}
+              >
+                {Icon && <Icon size={24} color="#fff" />}
+              </button>
             );
           })}
-        </Grid>
+        </div>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} variant="contained" color="secondary">
+      <DialogActions className="px-6 pb-4">
+        <Button onClick={onClose} variant="outlined" fullWidth>
           Close
         </Button>
       </DialogActions>

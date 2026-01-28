@@ -4,15 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchTripActivities } from '@utils/fetchTripActivities';
 import { Activity } from '@utils/typeDefs';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
-import styles from './tripActivities.module.scss';
+import PageHeader from '@components/PageHeader/PageHeader';
+import ActivityCard from '@components/ActivityCard/ActivityCard';
+import EmptyState from '@components/EmptyState/EmptyState';
+import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
+import { HiOutlineCalendar } from 'react-icons/hi';
 
 const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -26,7 +22,6 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
       try {
         const fetchedActivities = await fetchTripActivities(tripId);
         setActivities(fetchedActivities);
-        console.log(fetchedActivities);
       } catch (err) {
         console.error('Failed to fetch activities:', err);
         setError('An error occurred while fetching activities.');
@@ -40,59 +35,43 @@ const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
 
   if (loading) {
     return (
-      <Box className={styles.loadingContainer}>
-        <CircularProgress />
-      </Box>
+      <div className="max-w-4xl mx-auto w-full px-6 py-8">
+        <LoadingSkeleton variant="page" />
+      </div>
     );
   }
 
   if (error) {
-    return <Typography className={styles.error}>{error}</Typography>;
+    return (
+      <div className="max-w-4xl mx-auto w-full px-6 py-8">
+        <div className="bg-error-light text-error-dark rounded-btn px-4 py-3 text-sm text-center">
+          {error}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Box className={styles.pageContainer}>
-      <Button
-        variant="outlined"
-        onClick={() => router.push(`/trips/${tripId}`)}
-        className={styles.backButton}
-      >
-        Back to Trip Details
-      </Button>
-      <Typography variant="h4" className={styles.title}>
-        Trip Activities
-      </Typography>
-      <Box className={styles.activitiesContainer}>
-        {activities.map((activity) => (
-          <Card key={activity.id} className={styles.activityCard}>
-            <CardContent>
-              <Typography variant="h6">{activity.activityName}</Typography>
-              {activity.notes && (
-                <Typography>Notes: {activity.notes}</Typography>
-              )}
-              <Typography>
-                Time: {new Date(activity.startTime).toLocaleString()} -{' '}
-                {new Date(activity.endTime).toLocaleString()}
-              </Typography>
-              <Typography>
-                Location: {activity.city}, {activity.country}
-              </Typography>
-              <Typography>Address: {activity.address || 'N/A'}</Typography>
-              <Typography>
-                Categories: {activity.categories.join(', ')}
-              </Typography>
-              <Typography>
-                Coordinates: {activity.latitude}, {activity.longitude}
-              </Typography>
-              <Typography>
-                Average Score: {activity.avgScore || 'N/A'}
-              </Typography>
-              <Typography>Number of Votes: {activity.numVotes || 0}</Typography>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
-    </Box>
+    <div className="max-w-4xl mx-auto w-full px-6 py-8 animate-fade-in">
+      <PageHeader
+        title="Trip Activities"
+        onBack={() => router.push(`/trips/${tripId}`)}
+      />
+
+      {activities.length === 0 ? (
+        <EmptyState
+          icon={HiOutlineCalendar}
+          title="No activities yet"
+          description="Create your first activity to start planning this trip."
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {activities.map((activity) => (
+            <ActivityCard key={activity.id} activity={activity} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

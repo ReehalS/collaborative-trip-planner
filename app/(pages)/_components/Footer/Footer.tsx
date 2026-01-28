@@ -1,11 +1,9 @@
-import styles from './Footer.module.scss';
-
 export default function Footer() {
   return (
-    <div className={styles.container}>
-      <p className={styles.credit}>
-        Designed & develped by Sandeep Reehal @2025
+    <footer className="w-full py-5 px-6 bg-surface-900 text-center">
+      <p className="text-sm text-surface-400">
+        Designed &amp; developed by Sandeep Reehal &copy; 2025
       </p>
-    </div>
+    </footer>
   );
 }
