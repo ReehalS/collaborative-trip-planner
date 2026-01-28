@@ -20,12 +20,19 @@ export async function POST(request: Request) {
       const location = data.results[0].geometry.location;
       const addressComponents = data.results[0].address_components;
 
-      const countryComponent = addressComponents.find((comp) =>
+      const countryComponent = addressComponents.find((comp: any) =>
         comp.types.includes('country')
       );
-      const cityComponent = addressComponents.find((comp) =>
-        comp.types.includes('locality')
-      );
+      const cityComponent =
+        addressComponents.find((comp: any) =>
+          comp.types.includes('locality')
+        ) ||
+        addressComponents.find((comp: any) =>
+          comp.types.includes('administrative_area_level_2')
+        ) ||
+        addressComponents.find((comp: any) =>
+          comp.types.includes('administrative_area_level_1')
+        );
 
       return NextResponse.json({
         latitude: location.lat,

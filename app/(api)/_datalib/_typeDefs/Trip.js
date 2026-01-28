@@ -12,6 +12,8 @@ const typeDefs = gql`
     timezone: String!
     activities: [ActivityToTrip]
     users: [UserToTrip]
+    activityCount: Int!
+    memberCount: Int!
   }
 
   input TripInput {

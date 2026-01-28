@@ -53,6 +53,14 @@ const resolvers = {
         )
       );
     },
+    activityCount: async (parent) => {
+      const relations = await ActivityToTrip.findByTrip({ tripId: parent.id });
+      return relations.length;
+    },
+    memberCount: async (parent) => {
+      const members = await UserToTrip.findMembersByTrip({ tripId: parent.id });
+      return members.length;
+    },
   },
   Mutation: {
     createTrip: (_, { input }, { auth }) => {
