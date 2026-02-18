@@ -6,7 +6,7 @@ import {
   LuPlane,
   LuBike,
 } from 'react-icons/lu';
-import { PiBus, PiTrain } from "react-icons/pi";
+import { PiBus, PiTrain } from 'react-icons/pi';
 
 const profileColors = [
   { background: '#FF5733', icon: LuCar }, // Red - Car
@@ -20,4 +20,3 @@ const profileColors = [
 ];
 
 export default profileColors;
-

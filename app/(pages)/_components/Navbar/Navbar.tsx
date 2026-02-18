@@ -4,10 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
-import {
-  authenticatedLinks,
-  unauthenticatedLinks,
-} from '@data/navConfig';
+import { authenticatedLinks, unauthenticatedLinks } from '@data/navConfig';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);

@@ -1,6 +1,6 @@
 export const handleCopyToClipboard = (
   joinCode: string | undefined,
-  setCopySuccess: (message: string | null) => void
+  setCopySuccess: (_: string | null) => void
 ) => {
   if (joinCode) {
     navigator.clipboard.writeText(joinCode).then(() => {

@@ -8,6 +8,15 @@ import { Alert } from '@mui/material';
 import PageHeader from '@components/PageHeader/PageHeader';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 
+interface TripMember {
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  role: string;
+}
+
 const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +72,7 @@ const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
       <PageHeader title="Trip Members" />
 
       <div className="bg-white rounded-card shadow-card divide-y divide-surface-100 overflow-hidden">
-        {members.map((member: any) => (
+        {members.map((member: TripMember) => (
           <div
             key={member.user.id}
             className="flex items-center gap-3 p-4 hover:bg-surface-50 transition-colors duration-150"

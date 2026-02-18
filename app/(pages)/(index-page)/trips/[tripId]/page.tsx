@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Trip, Activity } from '@utils/typeDefs';
@@ -59,10 +59,10 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   const router = useRouter();
   const tripId = params.tripId;
 
-  const reloadActivities = async () => {
+  const reloadActivities = useCallback(async () => {
     const updatedActivities = await fetchTripActivities(tripId);
     setActivities(updatedActivities);
-  };
+  }, [tripId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,7 +129,7 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         }
       );
     }
-  }, [map, activities]);
+  }, [map, activities, trip, reloadActivities]);
 
   const handleActivityClick = (index: number) => {
     if (!map || !markers[index]) {

@@ -5,9 +5,9 @@ import { Trip, Activity } from '@utils/typeDefs';
 
 export const fetchTripDetails = async (
   tripId: string,
-  setTrip: (trip: Trip | null) => void,
-  setActivities: (activities: Activity[]) => void,
-  setError: (error: string | null) => void
+  setTrip: (_: Trip | null) => void,
+  setActivities: (__: Activity[]) => void,
+  setError: (___: string | null) => void
 ): Promise<void> => {
   try {
     const variables = { tripId };

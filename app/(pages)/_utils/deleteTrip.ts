@@ -1,10 +1,11 @@
 import sendApolloRequest from './sendApolloRequest';
 import { DELETE_TRIP_MUTATION } from '@utils/queries';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export const handleDeleteTrip = async (
   tripId: string,
-  router: any,
-  setError: (error: string | null) => void,
+  router: AppRouterInstance,
+  setError: (_: string | null) => void
 ) => {
   try {
     const variables = { tripId };

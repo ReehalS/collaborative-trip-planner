@@ -15,7 +15,9 @@ const resolvers = {
       const activityToTripRelations = await ActivityToTrip.findByTrip({
         tripId: id,
       });
-      const activities = activityToTripRelations.map((relation) => relation.activity);
+      const activities = activityToTripRelations.map(
+        (relation) => relation.activity
+      );
 
       return { trip: trip, activities: activities };
     },

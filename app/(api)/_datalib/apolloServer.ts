@@ -23,7 +23,7 @@ const handler = startServerAndCreateNextHandler(server, {
     if (token) {
       try {
         const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!);
-        userId = (decoded as any)?.id;
+        userId = (decoded as { id: string })?.id;
       } catch (err) {
         console.warn('Invalid token:', err.message);
       }

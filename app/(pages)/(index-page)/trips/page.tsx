@@ -11,7 +11,11 @@ import PageHeader from '@components/PageHeader/PageHeader';
 import EmptyState from '@components/EmptyState/EmptyState';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 import { AiOutlinePlus, AiOutlineTeam } from 'react-icons/ai';
-import { HiOutlineGlobeAlt, HiOutlineChevronRight, HiOutlineCalendar } from 'react-icons/hi';
+import {
+  HiOutlineGlobeAlt,
+  HiOutlineChevronRight,
+  HiOutlineCalendar,
+} from 'react-icons/hi';
 
 const TripsPage = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -50,7 +54,7 @@ const TripsPage = () => {
     };
 
     fetchTrips();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -143,11 +147,17 @@ const TripsPage = () => {
               <div className="flex items-center gap-4 mb-3">
                 <div className="flex items-center gap-1.5 text-sm text-surface-500">
                   <HiOutlineCalendar className="w-4 h-4 text-surface-400" />
-                  <span>{trip.activityCount ?? 0} {trip.activityCount === 1 ? 'activity' : 'activities'}</span>
+                  <span>
+                    {trip.activityCount ?? 0}{' '}
+                    {trip.activityCount === 1 ? 'activity' : 'activities'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-sm text-surface-500">
                   <AiOutlineTeam className="w-4 h-4 text-surface-400" />
-                  <span>{trip.memberCount ?? 0} {trip.memberCount === 1 ? 'member' : 'members'}</span>
+                  <span>
+                    {trip.memberCount ?? 0}{' '}
+                    {trip.memberCount === 1 ? 'member' : 'members'}
+                  </span>
                 </div>
               </div>
 

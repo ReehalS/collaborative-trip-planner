@@ -10,7 +10,11 @@ interface PageHeaderProps {
   actions?: React.ReactNode;
 }
 
-export default function PageHeader({ title, onBack, actions }: PageHeaderProps) {
+export default function PageHeader({
+  title,
+  onBack,
+  actions,
+}: PageHeaderProps) {
   const router = useRouter();
 
   const handleBack = onBack || (() => router.back());

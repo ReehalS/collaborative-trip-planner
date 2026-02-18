@@ -9,7 +9,6 @@ import { USER_UPDATE_MUTATION } from '@utils/queries';
 import ProfilePicSelector from '@components/ProfilePicSelector/ProfilePicSelector';
 import profileColors from '@data/profileColors';
 import { Button, TextField, Alert } from '@mui/material';
-import FormCard from '@components/FormCard/FormCard';
 import PageHeader from '@components/PageHeader/PageHeader';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 
@@ -93,7 +92,9 @@ export default function EditUser() {
       router.push('/');
     } catch (error) {
       console.error('Failed to update profile:', error);
-      setError('An error occurred while updating your profile. Please try again.');
+      setError(
+        'An error occurred while updating your profile. Please try again.'
+      );
     }
   };
 
@@ -140,7 +141,13 @@ export default function EditUser() {
             </div>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="flex flex-col gap-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSave();
+            }}
+            className="flex flex-col gap-4"
+          >
             <div className="grid grid-cols-2 gap-3">
               <TextField
                 label="First Name"

@@ -50,7 +50,7 @@ const resolvers = {
       if (!auth?.userId) throw new Error('Unauthorized');
       return Users.delete({ id });
     },
-    forgotPassword: async (_, { email }, { auth }) => {
+    forgotPassword: async (_, { email }) => {
       const user = await Users.findByEmail(email);
       if (!user) {
         throw new Error('User with this email does not exist.');
@@ -110,7 +110,7 @@ const resolvers = {
         message: 'Reset password email sent successfully.',
       };
     },
-    resetPassword: async (_, { token, newPassword }, { auth }) => {
+    resetPassword: async (_, { token, newPassword }) => {
       const user = await Users.findByResetToken(token);
       console.log(user);
       if (!user || user.resetPasswordExpires < new Date()) {

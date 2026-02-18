@@ -64,17 +64,26 @@ export const addMarkers = async (
           </h3>
           <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: #525252;">
             <span style="flex-shrink: 0;">&#128340;</span>
-            <span>${formatTimestamp(activity.startTime, timezone)} &mdash; ${formatTimestamp(activity.endTime, timezone)}</span>
+            <span>${formatTimestamp(
+              activity.startTime,
+              timezone
+            )} &mdash; ${formatTimestamp(activity.endTime, timezone)}</span>
           </div>
           ${notesHtml}
           ${categoriesHtml}
           <div style="display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid #e5e5e5; margin-top: 10px; font-size: 0.8125rem; color: #525252;">
-            <span style="font-weight: 600;">Score:</span> ${activity.avgScore?.toFixed(1) || 'N/A'}
+            <span style="font-weight: 600;">Score:</span> ${
+              activity.avgScore?.toFixed(1) || 'N/A'
+            }
             <span style="color: #a3a3a3;">&middot;</span>
-            <span>${activity.numVotes || 0} vote${activity.numVotes !== 1 ? 's' : ''}</span>
+            <span>${activity.numVotes || 0} vote${
+              activity.numVotes !== 1 ? 's' : ''
+            }</span>
           </div>
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-            <label for="rating-${activity.id}" style="font-size: 0.8125rem; font-weight: 600; color: #171717;">
+            <label for="rating-${
+              activity.id
+            }" style="font-size: 0.8125rem; font-weight: 600; color: #171717;">
               Rate (0-5):
             </label>
             <input type="number" id="rating-${activity.id}"

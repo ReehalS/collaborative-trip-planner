@@ -43,7 +43,6 @@ const typeDefs = gql`
     tripByJoinCode(joinCode: String!): Trip
   }
 
-  
   type Mutation {
     createTrip(input: TripInput!): Trip
     deleteTrip(id: ID!): Boolean

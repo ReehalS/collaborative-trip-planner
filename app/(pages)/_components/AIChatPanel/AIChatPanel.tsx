@@ -82,15 +82,15 @@ export default function AIChatPanel({
                       const nativeInputValueSetter =
                         Object.getOwnPropertyDescriptor(
                           window.HTMLInputElement.prototype,
-                          'value',
+                          'value'
                         )?.set;
                       const inputEl = document.getElementById(
-                        'chat-input',
+                        'chat-input'
                       ) as HTMLInputElement;
                       if (inputEl && nativeInputValueSetter) {
                         nativeInputValueSetter.call(inputEl, q);
                         inputEl.dispatchEvent(
-                          new Event('input', { bubbles: true }),
+                          new Event('input', { bubbles: true })
                         );
                         inputEl.form?.requestSubmit();
                       }

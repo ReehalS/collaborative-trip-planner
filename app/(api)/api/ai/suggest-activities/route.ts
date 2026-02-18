@@ -11,7 +11,7 @@ const SuggestionSchema = z.object({
       estimatedDuration: z.string(),
       categories: z.array(z.string()),
       suggestedTimeOfDay: z.enum(['morning', 'afternoon', 'evening', 'any']),
-    }),
+    })
   ),
 });
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       ? `\nThe group already has these activities planned: ${existingActivities
           .map((a: { activityName: string }) => a.activityName)
           .join(
-            ', ',
+            ', '
           )}. Suggest different activities that complement the existing ones. That are NEARBY and do not overlap. Suggest activities that fit well within the time constraints of the trip.`
       : '';
 
@@ -54,7 +54,7 @@ For each activity, provide:
     console.error('AI suggest activities error:', err);
     return NextResponse.json(
       { error: 'Failed to generate suggestions' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

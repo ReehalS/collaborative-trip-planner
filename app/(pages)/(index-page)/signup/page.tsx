@@ -71,7 +71,10 @@ const Signup = () => {
   const SelectedIcon = profileColors[profilePic - 1]?.icon;
 
   return (
-    <FormCard title="Create an account" subtitle="Start planning trips with friends">
+    <FormCard
+      title="Create an account"
+      subtitle="Start planning trips with friends"
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3">
           <TextField
@@ -109,7 +112,9 @@ const Signup = () => {
 
         {/* Profile picture selector */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-surface-700">Profile Picture</p>
+          <p className="text-sm font-medium text-surface-700">
+            Profile Picture
+          </p>
           <div className="flex items-center gap-3">
             <button
               type="button"

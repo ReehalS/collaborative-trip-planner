@@ -21,7 +21,7 @@ const CreateTripPage = () => {
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
   const [joinCode, setJoinCode] = useState('');
-  const [isJoinCodeValid, setIsJoinCodeValid] = useState(true);
+  const [isJoinCodeValid] = useState(true);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -47,7 +47,7 @@ const CreateTripPage = () => {
         const mapInstance = new Map(
           document.getElementById('map') as HTMLElement,
           {
-            center: { lat: latitude, lng: longitude },
+            center: { lat: 0, lng: 0 },
             zoom: 1.5,
             mapId: mapID,
           }
@@ -58,7 +58,7 @@ const CreateTripPage = () => {
         console.error('Failed to load Google Maps API:', e);
         setError('Failed to load Google Maps API');
       });
-  }, []);
+  }, [router]);
 
   const handleSearchLocation = async () => {
     const addressInput = document.getElementById('address') as HTMLInputElement;
@@ -193,7 +193,11 @@ const CreateTripPage = () => {
             disabled={loading}
             sx={{ minWidth: 140, flexShrink: 0 }}
           >
-            {loading ? <CircularProgress size={20} color="inherit" /> : 'Search'}
+            {loading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              'Search'
+            )}
           </Button>
         </div>
 

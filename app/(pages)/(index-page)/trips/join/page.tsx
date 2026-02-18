@@ -19,7 +19,7 @@ const JoinTripPage = () => {
     if (!token) {
       router.push('/login');
     }
-  }, []);
+  }, [router]);
 
   const handleJoin = async () => {
     try {
@@ -57,7 +57,10 @@ const JoinTripPage = () => {
   };
 
   return (
-    <FormCard title="Join a Trip" subtitle="Enter the join code shared with you">
+    <FormCard
+      title="Join a Trip"
+      subtitle="Enter the join code shared with you"
+    >
       <div className="flex flex-col gap-4">
         {error && (
           <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">

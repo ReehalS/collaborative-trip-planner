@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
 
+interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
+}
+
 export async function POST(request: Request) {
   try {
     const { address } = await request.json();
@@ -20,17 +26,17 @@ export async function POST(request: Request) {
       const location = data.results[0].geometry.location;
       const addressComponents = data.results[0].address_components;
 
-      const countryComponent = addressComponents.find((comp: any) =>
-        comp.types.includes('country')
+      const countryComponent = addressComponents.find(
+        (comp: AddressComponent) => comp.types.includes('country')
       );
       const cityComponent =
-        addressComponents.find((comp: any) =>
+        addressComponents.find((comp: AddressComponent) =>
           comp.types.includes('locality')
         ) ||
-        addressComponents.find((comp: any) =>
+        addressComponents.find((comp: AddressComponent) =>
           comp.types.includes('administrative_area_level_2')
         ) ||
-        addressComponents.find((comp: any) =>
+        addressComponents.find((comp: AddressComponent) =>
           comp.types.includes('administrative_area_level_1')
         );
 

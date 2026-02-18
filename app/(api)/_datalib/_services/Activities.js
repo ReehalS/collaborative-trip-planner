@@ -21,8 +21,7 @@ export default class Activities {
     if (filter?.suggesterId) whereClause.suggesterId = filter.suggesterId;
     if (filter?.city) whereClause.city = filter.city;
     if (filter?.country) whereClause.country = filter.country;
-    if (filter?.category)
-      whereClause.categories = { has: filter.category };
+    if (filter?.category) whereClause.categories = { has: filter.category };
     if (filter?.userId) whereClause.suggesterId = filter.userId;
 
     return prisma.activity.findMany({

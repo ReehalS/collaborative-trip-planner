@@ -6,7 +6,9 @@ interface LoadingSkeletonProps {
 function SkeletonBlock({ className }: { className?: string }) {
   return (
     <div
-      className={`relative overflow-hidden bg-surface-200 rounded-btn ${className || ''}`}
+      className={`relative overflow-hidden bg-surface-200 rounded-btn ${
+        className || ''
+      }`}
     >
       <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer" />
     </div>
