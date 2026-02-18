@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
           `${i + 1}. "${a.activityName}" (id: ${a.id}) at (${a.latitude}, ${
             a.longitude
           }) - current time: ${a.startTime} to ${a.endTime}${
-            a.categories?.length
+            Array.isArray(a.categories) && a.categories.length
               ? ` [${(a.categories as string[]).join(', ')}]`
               : ''
           }`

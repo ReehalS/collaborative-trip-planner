@@ -1,17 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
-import { jwtDecode } from 'jwt-decode';
 import { fetchTripDetails } from '@utils/fetchTripDetails';
 import { CREATE_ACTIVITY_MUTATION } from '@utils/queries';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { TextField, Button, Alert } from '@mui/material';
-import { Trip, Activity, User } from '@utils/typeDefs';
+import { Trip, Activity } from '@utils/typeDefs';
+import { useDbUser } from '@hooks/useDbUser';
 import PageHeader from '@components/PageHeader/PageHeader';
 
-const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
+const CreateActivityPage = ({
+  params,
+}: {
+  params: Promise<{ tripId: string }>;
+}) => {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [, setActivities] = useState<Activity[]>([]);
   const [activityName, setActivityName] = useState('');
@@ -31,7 +35,9 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
   const [autofillLoading, setAutofillLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tripId = params.tripId;
+  const { tripId } = use(params);
+  const { dbUser, loading: authLoading } = useDbUser();
+  const markerLibRef = useRef<google.maps.MarkerLibrary | null>(null);
 
   // Pre-fill activity name from query param (e.g. from AI suggestion)
   useEffect(() => {
@@ -40,8 +46,8 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
   }, [searchParams]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (authLoading) return;
+    if (!dbUser) {
       router.push('/login');
       return;
     }
@@ -53,12 +59,15 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
       version: 'weekly',
     });
 
-    loader
-      .load()
-      .then(async () => {
-        const { Map } = (await google.maps.importLibrary(
-          'maps'
-        )) as google.maps.MapsLibrary;
+    (async () => {
+      try {
+        const [mapsLib, markerLib] = await Promise.all([
+          loader.importLibrary('maps'),
+          loader.importLibrary('marker'),
+        ]);
+        markerLibRef.current = markerLib as google.maps.MarkerLibrary;
+
+        const { Map } = mapsLib as google.maps.MapsLibrary;
         const mapID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
         const mapInstance = new Map(
           document.getElementById('map') as HTMLElement,
@@ -69,12 +78,12 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
           }
         );
         setMap(mapInstance);
-      })
-      .catch((e) => {
+      } catch (e) {
         console.error('Failed to load Google Maps API:', e);
         setError('Failed to load Google Maps API');
-      });
-  }, [tripId, router, trip?.latitude, trip?.longitude]);
+      }
+    })();
+  }, [tripId, router, trip?.latitude, trip?.longitude, dbUser, authLoading]);
 
   const handleSearchLocation = async () => {
     let queryAddress = searchLocation;
@@ -103,13 +112,10 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
           const location = { lat: data.latitude, lng: data.longitude };
           map.setCenter(location);
 
-          const { AdvancedMarkerElement, PinElement } =
-            (await google.maps.importLibrary(
-              'marker'
-            )) as google.maps.MarkerLibrary;
+          const { AdvancedMarkerElement, PinElement } = markerLibRef.current!;
 
           if (marker) {
-            marker.setMap(null);
+            marker.map = null;
           }
 
           const pin = new PinElement({
@@ -186,15 +192,11 @@ const CreateActivityPage = ({ params }: { params: { tripId: string } }) => {
     if (!validateTimes(startTime, endTime)) return;
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const user = jwtDecode<{ exp: number } & User>(token);
-      const suggesterId = user.id;
-
-      if (!suggesterId) {
+      if (!dbUser) {
         setError('User is not logged in.');
         return;
       }
+      const suggesterId = dbUser.id;
 
       const variables = {
         input: {

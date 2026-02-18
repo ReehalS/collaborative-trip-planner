@@ -2,79 +2,57 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
 import sendApolloRequest from '@utils/sendApolloRequest';
-import { User } from '@utils/typeDefs';
 import { USER_UPDATE_MUTATION } from '@utils/queries';
 import ProfilePicSelector from '@components/ProfilePicSelector/ProfilePicSelector';
 import profileColors from '@data/profileColors';
 import { Button, TextField, Alert } from '@mui/material';
 import PageHeader from '@components/PageHeader/PageHeader';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
+import { useDbUser } from '@hooks/useDbUser';
+import { authClient } from '@app/auth-client';
 
 export default function EditUser() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { dbUser, loading: authLoading } = useDbUser();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [profilePic, setProfilePic] = useState(0);
-  const [showPasswordField, setShowPasswordField] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode<{ exp: number } & User>(token);
-
-        if (decoded.exp * 1000 < Date.now()) {
-          console.log('Token expired, redirecting to login.');
-          localStorage.removeItem('token');
-          router.push('/login');
-          return;
-        }
-        setUser(decoded);
-        setFirstName(decoded.firstName);
-        setLastName(decoded.lastName || '');
-        setEmail(decoded.email);
-        setProfilePic(decoded.profilePic || 0);
-        setLoading(false);
-      } catch (err) {
-        console.error('Invalid token:', err);
-        localStorage.removeItem('token');
-        router.push('/login');
-      }
-    } else {
+    if (!authLoading && !dbUser) {
       router.push('/login');
+      return;
     }
-  }, [router]);
+    if (dbUser) {
+      setFirstName(dbUser.firstName || '');
+      setLastName(dbUser.lastName || '');
+      setProfilePic(dbUser.profilePic || 0);
+    }
+  }, [dbUser, authLoading, router]);
 
   const handleSave = async () => {
     setError(null);
+    setSuccess(null);
 
-    if (!user) {
+    if (!dbUser) {
       setError('No user data found.');
       return;
     }
 
-    if (!firstName || !email) {
-      setError('Please fill in the required fields of first name and email.');
-      return;
-    }
-
     try {
+      // Update DB fields (firstName, lastName, profilePic)
       const variables = {
-        id: user.id,
+        id: dbUser.id,
         input: {
           firstName,
           lastName,
-          email,
           profilePic,
-          ...(showPasswordField && password ? { password } : {}),
         },
       };
 
@@ -84,21 +62,34 @@ export default function EditUser() {
         return;
       }
 
-      const { user: updatedUser, token: newToken } = response.data.updateUser;
+      // Sync display name to Neon Auth
+      const name = `${firstName} ${lastName}`.trim();
+      await authClient.updateUser({ name });
 
-      localStorage.setItem('token', newToken);
-      setUser(updatedUser);
+      // Handle password change if provided
+      if (currentPassword && newPassword) {
+        const { error: pwError } = await authClient.changePassword({
+          currentPassword,
+          newPassword,
+        });
+        if (pwError) {
+          setError(pwError.message ?? 'Failed to change password.');
+          return;
+        }
+        setCurrentPassword('');
+        setNewPassword('');
+      }
 
-      router.push('/');
-    } catch (error) {
-      console.error('Failed to update profile:', error);
+      setSuccess('Profile updated successfully!');
+    } catch (err) {
+      console.error('Failed to update profile:', err);
       setError(
         'An error occurred while updating your profile. Please try again.'
       );
     }
   };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="max-w-4xl mx-auto w-full px-6 py-8">
         <LoadingSkeleton variant="form" />
@@ -106,7 +97,7 @@ export default function EditUser() {
     );
   }
 
-  if (!user) {
+  if (!dbUser) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <p className="text-surface-500">Loading...</p>
@@ -125,6 +116,11 @@ export default function EditUser() {
           {error}
         </Alert>
       )}
+      {success && (
+        <Alert severity="success" className="mb-4">
+          {success}
+        </Alert>
+      )}
 
       <div className="flex items-center justify-center">
         <div className="bg-white rounded-card shadow-card p-8 w-full max-w-lg">
@@ -141,6 +137,10 @@ export default function EditUser() {
             </div>
           </div>
 
+          <div className="text-center mb-6">
+            <p className="text-sm text-surface-500">{dbUser.email}</p>
+          </div>
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -148,49 +148,33 @@ export default function EditUser() {
             }}
             className="flex flex-col gap-4"
           >
+            {/* Name fields */}
             <div className="grid grid-cols-2 gap-3">
               <TextField
                 label="First Name"
-                type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                required
                 fullWidth
+                size="small"
               />
               <TextField
                 label="Last Name"
-                type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 fullWidth
+                size="small"
               />
             </div>
+
+            {/* Email (read-only) */}
             <TextField
               label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              value={dbUser.email}
               fullWidth
+              size="small"
+              disabled
+              helperText="Email is managed by your authentication provider"
             />
-
-            {!showPasswordField ? (
-              <button
-                type="button"
-                onClick={() => setShowPasswordField(true)}
-                className="text-sm text-primary-500 hover:text-primary-600 font-medium self-start hover:underline underline-offset-2 transition-colors"
-              >
-                Change Password
-              </button>
-            ) : (
-              <TextField
-                label="New Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-              />
-            )}
 
             {/* Profile picture selector */}
             <div className="space-y-2">
@@ -223,6 +207,31 @@ export default function EditUser() {
               onSelect={(index) => setProfilePic(index)}
               onClose={() => setShowDialog(false)}
             />
+
+            {/* Password change section */}
+            <div className="border-t border-surface-200 pt-4 mt-2">
+              <p className="text-sm font-medium text-surface-700 mb-3">
+                Change Password
+              </p>
+              <div className="flex flex-col gap-3">
+                <TextField
+                  label="Current Password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="New Password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  fullWidth
+                  size="small"
+                />
+              </div>
+            </div>
 
             <Button
               type="submit"

@@ -2,100 +2,97 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TextField } from '@mui/material';
 import Link from 'next/link';
+import { TextField, Button, CircularProgress } from '@mui/material';
 import FormCard from '@components/FormCard/FormCard';
+import { authClient } from '@app/auth-client';
 
-const Login = () => {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      if (!res.ok) {
-        const { error } = await res.json();
-        setError(error || 'Something went wrong');
+      const { error } = await authClient.signIn.email({ email, password });
+      if (error) {
+        setError(error.message ?? 'Sign in failed.');
+        setLoading(false);
         return;
       }
-
-      const { token } = await res.json();
-      localStorage.setItem('token', token);
       router.push('/');
-    } catch (err) {
-      console.error(err);
-      setError('An error occurred during login');
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 
   return (
-    <FormCard title="Welcome back" subtitle="Sign in to your account">
+    <FormCard title="Welcome Back" subtitle="Sign in to your account">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          fullWidth
-        />
-        <TextField
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          fullWidth
-        />
-
         {error && (
           <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
             {error}
           </div>
         )}
 
-        <button
-          type="submit"
-          className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-btn transition-colors duration-200"
-        >
-          Sign In
-        </button>
+        <TextField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
 
-        <div className="flex flex-col items-center gap-2 mt-2">
-          <Link
-            href="/forgot-password"
-            className="text-sm text-primary-500 hover:text-primary-600 hover:underline underline-offset-2 transition-colors"
-          >
-            Forgot password?
-          </Link>
-          <Link
-            href="/signup"
-            className="text-sm text-surface-500 hover:text-surface-700 transition-colors"
-          >
-            Not a member yet?{' '}
-            <span className="text-primary-500 font-medium hover:underline">
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          size="large"
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+        </Button>
+
+        <div className="text-center space-y-2 text-sm">
+          <p className="text-surface-500">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/signup"
+              className="text-primary-600 hover:text-primary-700 font-medium"
+            >
               Sign Up
-            </span>
-          </Link>
+            </Link>
+          </p>
+          <p>
+            <Link
+              href="/forgot-password"
+              className="text-surface-500 hover:text-surface-700"
+            >
+              Forgot your password?
+            </Link>
+          </p>
         </div>
       </form>
     </FormCard>
   );
-};
-
-export default Login;
+}

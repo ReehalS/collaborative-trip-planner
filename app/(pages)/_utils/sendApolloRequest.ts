@@ -6,13 +6,5 @@ export default async function sendApolloRequest(
   variables: object,
   revalidateCache?: { path?: string; type?: 'page' | 'layout'; tag?: string }
 ) {
-  const token = localStorage.getItem('token');
-
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-
-  // Pass headers to handleApolloRequest
-  return handleApolloRequest(print(query), variables, revalidateCache, headers);
+  return handleApolloRequest(print(query), variables, revalidateCache);
 }

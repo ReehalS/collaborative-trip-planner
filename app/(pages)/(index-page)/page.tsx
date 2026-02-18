@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
 import { User } from '@utils/typeDefs';
 import Link from 'next/link';
 import profileColors from '../_data/profileColors';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
+import { useDbUser } from '@hooks/useDbUser';
 
 // ---------- Authenticated dashboard ----------
 function Dashboard({ user }: { user: User }) {
@@ -386,32 +385,9 @@ function LandingPage() {
 
 // ---------- Main page ----------
 const IndexPage = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [checked, setChecked] = useState(false);
+  const { dbUser, loading } = useDbUser();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode<{ exp: number } & User>(token);
-
-        if (decodedToken.exp * 1000 < Date.now()) {
-          localStorage.removeItem('token');
-          setChecked(true);
-          return;
-        }
-
-        const { id, email, firstName, lastName, profilePic } = decodedToken;
-        setUser({ id, email, firstName, lastName, profilePic });
-      } catch {
-        localStorage.removeItem('token');
-      }
-    }
-    setChecked(true);
-  }, []);
-
-  if (!checked) {
+  if (loading) {
     return (
       <div className="max-w-4xl mx-auto w-full px-6 py-8">
         <LoadingSkeleton variant="page" />
@@ -419,8 +395,8 @@ const IndexPage = () => {
     );
   }
 
-  if (user) {
-    return <Dashboard user={user} />;
+  if (dbUser) {
+    return <Dashboard user={dbUser} />;
   }
 
   return <LandingPage />;

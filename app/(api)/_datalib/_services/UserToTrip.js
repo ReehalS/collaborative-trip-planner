@@ -44,7 +44,7 @@ export default class UserToTrip {
         where: { id },
         data: input,
       });
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }
@@ -56,7 +56,7 @@ export default class UserToTrip {
         where: { id },
       });
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }

@@ -3,39 +3,33 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import sendApolloRequest from '@utils/sendApolloRequest';
-import { jwtDecode } from 'jwt-decode';
-import { User, Activity } from '@utils/typeDefs';
+import { Activity } from '@utils/typeDefs';
 import { GET_USER_ACTIVITIES } from '@utils/queries';
 import PageHeader from '@components/PageHeader/PageHeader';
 import ActivityCard from '@components/ActivityCard/ActivityCard';
 import EmptyState from '@components/EmptyState/EmptyState';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 import { HiOutlineCalendar } from 'react-icons/hi';
+import { useDbUser } from '@hooks/useDbUser';
 
 const ActivitiesPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { dbUser, loading: authLoading } = useDbUser();
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!dbUser) {
+      setError('User not authenticated.');
+      setLoading(false);
+      return;
+    }
+
     const fetchActivities = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('User not authenticated.');
-          return;
-        }
-
-        const user = jwtDecode<{ exp: number } & User>(token);
-        const userId = user.id;
-
-        if (!userId) {
-          setError('User ID not found.');
-          return;
-        }
-
-        const variables = { userId };
+        const variables = { userId: dbUser.id };
         const response = await sendApolloRequest(
           GET_USER_ACTIVITIES,
           variables
@@ -55,9 +49,9 @@ const ActivitiesPage = () => {
     };
 
     fetchActivities();
-  }, []);
+  }, [dbUser, authLoading]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="max-w-4xl mx-auto w-full px-6 py-8">
         <LoadingSkeleton variant="page" />

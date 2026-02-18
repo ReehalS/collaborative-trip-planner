@@ -4,32 +4,45 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
+import { authClient } from '@app/auth-client';
+import { useDbUser } from '@hooks/useDbUser';
+import profileColors from '@data/profileColors';
 import { authenticatedLinks, unauthenticatedLinks } from '@data/navConfig';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const session = authClient.useSession();
+  const user = session.data?.user ?? null;
+  const { dbUser } = useDbUser();
   const pathname = usePathname();
   const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setAuthenticated(!!token);
-  }, []);
+  const authenticated = !!user;
 
   // Close mobile menu on route change
   useEffect(() => {
     setMenuOpen(false);
+    setProfileMenuOpen(false);
   }, [pathname]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setAuthenticated(false);
-    setMenuOpen(false);
-    router.push('/login');
-  };
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+    const handleClick = () => setProfileMenuOpen(false);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [profileMenuOpen]);
 
   const links = authenticated ? authenticatedLinks : unauthenticatedLinks;
+
+  const profilePic = dbUser?.profilePic ?? 1;
+  const ProfileIcon = profileColors[profilePic - 1]?.icon;
+  const profileBg = profileColors[profilePic - 1]?.background || '#e5e5e5';
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push('/login');
+  };
 
   return (
     <nav className="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-md border-b border-surface-200 shadow-navbar">
@@ -63,12 +76,28 @@ export default function Navbar() {
             );
           })}
           {authenticated && (
-            <button
-              onClick={handleLogout}
-              className="ml-2 px-3 py-2 rounded-btn text-sm font-medium text-error hover:bg-error-light transition-all duration-200"
-            >
-              Logout
-            </button>
+            <div className="relative ml-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileMenuOpen(!profileMenuOpen);
+                }}
+                className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-300 transition-all duration-150"
+                style={{ backgroundColor: profileBg }}
+              >
+                {ProfileIcon && <ProfileIcon size={18} color="#fff" />}
+              </button>
+              {profileMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-card shadow-elevated border border-surface-200 py-1 z-50">
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 text-sm text-surface-700 hover:bg-surface-100 transition-colors duration-150"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -109,10 +138,10 @@ export default function Navbar() {
           })}
           {authenticated && (
             <button
-              onClick={handleLogout}
-              className="w-full text-left px-4 py-3 rounded-btn text-sm font-medium text-error hover:bg-error-light transition-colors duration-200"
+              onClick={handleSignOut}
+              className="block w-full text-left px-4 py-3 rounded-btn text-sm font-medium text-surface-600 hover:text-surface-900 hover:bg-surface-100 transition-colors duration-200"
             >
-              Logout
+              Sign Out
             </button>
           )}
         </div>

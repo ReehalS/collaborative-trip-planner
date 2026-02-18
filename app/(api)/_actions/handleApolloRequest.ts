@@ -2,17 +2,27 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 import handler from '@datalib/apolloServer';
+import { neonAuth } from '@app/auth-server';
 
 export default async function handleApolloRequest(
   query: string,
   variables: object,
-  revalidateCache?: { path?: string; type?: 'page' | 'layout'; tag?: string },
-  headers: Record<string, string> = { 'Content-Type': 'application/json' } // Default headers
+  revalidateCache?: { path?: string; type?: 'page' | 'layout'; tag?: string }
 ) {
-  // Create a new request with the provided headers
+  const { user } = await neonAuth();
+  const userId = user?.id ?? null;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (userId) {
+    headers['x-internal-user-id'] = userId;
+  }
+
   const req = new Request('http://a', {
     method: 'POST',
-    headers: headers,
+    headers,
     body: JSON.stringify({
       query,
       variables,
@@ -25,7 +35,7 @@ export default async function handleApolloRequest(
     revalidatePath(revalidateCache.path, revalidateCache.type);
   }
   if (revalidateCache?.tag) {
-    revalidateTag(revalidateCache.tag);
+    revalidateTag(revalidateCache.tag, 'max');
   }
 
   return res.json();

@@ -1,91 +1,117 @@
 'use client';
 
-import { useState } from 'react';
-import sendApolloRequest from '@utils/sendApolloRequest';
-import { useRouter } from 'next/navigation';
-import { RESET_PASSWORD_MUTATION } from '@utils/queries';
-import { TextField, Button } from '@mui/material';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { TextField, Button, CircularProgress } from '@mui/material';
 import FormCard from '@components/FormCard/FormCard';
+import { authClient } from '@app/auth-client';
 
-const ResetPasswordPage = ({
-  searchParams,
-}: {
-  searchParams: { token: string };
-}) => {
-  const [newPassword, setNewPassword] = useState('');
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+function ResetPasswordForm() {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    const token = searchParams.get('token');
+    if (!token) {
+      setError('Invalid or missing reset token.');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const searchParamToken = searchParams.token;
-      const variables = { token: searchParamToken, newPassword };
-      const response = await sendApolloRequest(
-        RESET_PASSWORD_MUTATION,
-        variables
-      );
-      if (
-        response?.data?.resetPassword?.message !==
-        'Password reset successfully.'
-      ) {
-        setError('Password Reset Failed');
-      } else {
-        setMessage(response?.data?.resetPassword?.message);
-        router.push('/login');
+      const { error } = await authClient.resetPassword({
+        newPassword: password,
+        token,
+      });
+
+      if (error) {
+        setError(error.message ?? 'Failed to reset password.');
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      setError(
-        'Failed to reset password. If you have already used the link from the email, request a new one'
-      );
+
+      router.push('/login');
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 
   return (
-    <FormCard title="Set new password" subtitle="Enter your new password below">
-      <div className="flex flex-col gap-4">
-        <TextField
-          label="New Password"
-          type="password"
-          placeholder="Enter new password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          fullWidth
-        />
-
-        {message && (
-          <div className="bg-success-light text-success-dark rounded-btn px-4 py-2 text-sm">
-            {message}
-          </div>
-        )}
+    <FormCard title="Reset Password" subtitle="Enter your new password">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
           <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
             {error}
           </div>
         )}
 
+        <TextField
+          label="New Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
+
+        <TextField
+          label="Confirm Password"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
+
         <Button
+          type="submit"
           variant="contained"
           color="primary"
-          onClick={handleSubmit}
           fullWidth
           size="large"
+          disabled={loading}
         >
-          Reset Password
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            'Reset Password'
+          )}
         </Button>
 
-        <div className="text-center mt-2">
+        <p className="text-center text-sm">
           <Link
-            href="/forgot-password"
-            className="text-sm text-primary-500 hover:text-primary-600 hover:underline underline-offset-2 transition-colors"
+            href="/login"
+            className="text-surface-500 hover:text-surface-700"
           >
-            Need a new reset link? Request one here.
+            Back to Sign In
           </Link>
-        </div>
-      </div>
+        </p>
+      </form>
     </FormCard>
   );
-};
+}
 
-export default ResetPasswordPage;
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}

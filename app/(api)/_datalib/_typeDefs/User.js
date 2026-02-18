@@ -6,39 +6,23 @@ const typeDefs = gql`
     email: String!
     firstName: String!
     lastName: String
-    password: String!
     profilePic: Int!
     trips: [UserToTrip]
     UserToActivity: [UserToActivity]
   }
 
   input UserInput {
+    id: String!
     email: String!
     firstName: String!
     lastName: String
-    profilePic: Int!
-    password: String!
+    profilePic: Int
   }
 
   input UserUpdateInput {
-    email: String
     firstName: String
     lastName: String
     profilePic: Int
-    password: String
-  }
-
-  type UpdateUserResponse {
-    user: User!
-    token: String!
-  }
-
-  type ForgotPasswordResponse {
-    message: String!
-  }
-
-  type ResetPasswordResponse {
-    message: String!
   }
 
   type Query {
@@ -48,10 +32,8 @@ const typeDefs = gql`
 
   type Mutation {
     createUser(input: UserInput!): User
-    updateUser(id: ID!, input: UserUpdateInput!): UpdateUserResponse
+    updateUser(id: ID!, input: UserUpdateInput!): User
     deleteUser(id: ID!): Boolean
-    forgotPassword(email: String!): ForgotPasswordResponse!
-    resetPassword(token: String!, newPassword: String!): ResetPasswordResponse!
   }
 `;
 

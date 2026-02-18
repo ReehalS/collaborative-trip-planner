@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Trip, Activity } from '@utils/typeDefs';
@@ -10,6 +10,7 @@ import { fetchTripActivities } from '@utils/fetchTripActivities';
 import { handleCopyToClipboard } from '@utils/handleCopyToClipboard';
 import { handleDeleteTrip } from '@utils/deleteTrip';
 import formatTimestamp from '@utils/formatTimestamp';
+import { useDbUser } from '@hooks/useDbUser';
 import {
   Button,
   Tooltip,
@@ -32,7 +33,11 @@ interface OptimizedActivity {
   reasoning: string;
 }
 
-const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
+const TripDetailsPage = ({
+  params,
+}: {
+  params: Promise<{ tripId: string }>;
+}) => {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -57,7 +62,8 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
   const [optimizationLoading, setOptimizationLoading] = useState(false);
 
   const router = useRouter();
-  const tripId = params.tripId;
+  const { tripId } = use(params);
+  const { dbUser } = useDbUser();
 
   const reloadActivities = useCallback(async () => {
     const updatedActivities = await fetchTripActivities(tripId);
@@ -80,8 +86,12 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
         version: 'weekly',
       });
 
-      loader.load().then(() => {
-        const { Map } = google.maps;
+      (async () => {
+        const mapsLib = await loader.importLibrary('maps');
+        // Preload marker library so addMarkers can use it
+        await loader.importLibrary('marker');
+
+        const { Map } = mapsLib as google.maps.MapsLibrary;
         const mapInstance = new Map(
           document.getElementById('map') as HTMLElement,
           {
@@ -94,42 +104,46 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
           }
         );
         setMap(mapInstance);
-      });
+      })();
     }
   }, [trip]);
 
   useEffect(() => {
     if (map && trip) {
-      addMarkers(map, activities, trip.timezone || '0', reloadActivities).then(
-        (createdMarkers) => {
-          setMarkers(createdMarkers || []);
+      addMarkers(
+        map,
+        activities,
+        trip.timezone || '0',
+        reloadActivities,
+        dbUser?.id
+      ).then((createdMarkers) => {
+        setMarkers(createdMarkers || []);
 
-          // Auto-fit bounds to show all markers
-          if (createdMarkers && createdMarkers.length > 0) {
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend({ lat: trip.latitude, lng: trip.longitude });
+        // Auto-fit bounds to show all markers
+        if (createdMarkers && createdMarkers.length > 0) {
+          const bounds = new google.maps.LatLngBounds();
+          bounds.extend({ lat: trip.latitude, lng: trip.longitude });
 
-            createdMarkers.forEach(({ marker }) => {
-              if (marker.position) {
-                bounds.extend(marker.position as google.maps.LatLngLiteral);
-              }
-            });
+          createdMarkers.forEach(({ marker }) => {
+            if (marker.position) {
+              bounds.extend(marker.position as google.maps.LatLngLiteral);
+            }
+          });
 
-            map.fitBounds(bounds);
+          map.fitBounds(bounds);
 
-            // Cap max zoom for single-marker case
-            const listener = google.maps.event.addListener(map, 'idle', () => {
-              const currentZoom = map.getZoom();
-              if (currentZoom !== undefined && currentZoom > 15) {
-                map.setZoom(15);
-              }
-              google.maps.event.removeListener(listener);
-            });
-          }
+          // Cap max zoom for single-marker case
+          const listener = google.maps.event.addListener(map, 'idle', () => {
+            const currentZoom = map.getZoom();
+            if (currentZoom !== undefined && currentZoom > 15) {
+              map.setZoom(15);
+            }
+            google.maps.event.removeListener(listener);
+          });
         }
-      );
+      });
     }
-  }, [map, activities, trip, reloadActivities]);
+  }, [map, activities, trip, reloadActivities, dbUser?.id]);
 
   const handleActivityClick = (index: number) => {
     if (!map || !markers[index]) {
@@ -143,8 +157,9 @@ const TripDetailsPage = ({ params }: { params: { tripId: string } }) => {
 
     const { marker, infoWindow } = markers[index];
     const position = marker.position;
+    if (!position) return;
 
-    map.panTo(position);
+    map.panTo(position as google.maps.LatLngLiteral);
     map.setZoom(14);
     infoWindow.open(map, marker);
   };

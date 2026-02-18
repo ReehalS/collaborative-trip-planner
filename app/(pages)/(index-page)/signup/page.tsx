@@ -2,137 +2,87 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { TextField } from '@mui/material';
 import Link from 'next/link';
+import { TextField, Button, CircularProgress } from '@mui/material';
+import FormCard from '@components/FormCard/FormCard';
 import ProfilePicSelector from '@components/ProfilePicSelector/ProfilePicSelector';
 import profileColors from '@data/profileColors';
-import FormCard from '@components/FormCard/FormCard';
+import { authClient } from '@app/auth-client';
+import { ensureDbUser } from '@actions/ensureDbUser';
+import sendApolloRequest from '@utils/sendApolloRequest';
+import { USER_UPDATE_MUTATION } from '@utils/queries';
 
-const Signup = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function SignupPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [profilePic, setProfilePic] = useState(0);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [profilePic, setProfilePic] = useState(1);
   const [showDialog, setShowDialog] = useState(false);
   const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSubmitting(true);
+    setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          firstName,
-          lastName,
-          profilePic,
-        }),
+      const name = `${firstName} ${lastName}`.trim();
+      const { error } = await authClient.signUp.email({
+        email,
+        password,
+        name,
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || 'Something went wrong');
-        setSubmitting(false);
+      if (error) {
+        setError(error.message ?? 'Sign up failed.');
+        setLoading(false);
         return;
       }
 
-      // Auto-login after successful signup
-      const loginRes = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (loginRes.ok) {
-        const { token } = await loginRes.json();
-        localStorage.setItem('token', token);
-        router.push('/');
-      } else {
-        // Signup succeeded but auto-login failed — send to login page
-        router.push('/login');
+      // Session is now established — create DB user and set profilePic
+      const dbUser = await ensureDbUser();
+      if (dbUser) {
+        await sendApolloRequest(USER_UPDATE_MUTATION, {
+          id: dbUser.id,
+          input: { firstName, lastName, profilePic },
+        });
       }
-    } catch (err) {
-      console.error(err);
-      setError('An error occurred during signup');
-      setSubmitting(false);
+
+      router.push('/');
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 
   const SelectedIcon = profileColors[profilePic - 1]?.icon;
 
   return (
-    <FormCard
-      title="Create an account"
-      subtitle="Start planning trips with friends"
-    >
+    <FormCard title="Create Account" subtitle="Join Collaborative Planner">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-3">
-          <TextField
-            label="First Name"
-            type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            label="Last Name"
-            type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            fullWidth
-          />
-        </div>
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          fullWidth
-        />
-        <TextField
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          fullWidth
-        />
-
-        {/* Profile picture selector */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-surface-700">
-            Profile Picture
-          </p>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowDialog(true)}
-              className="px-4 py-2 text-sm font-medium text-primary-600 border border-primary-300 rounded-btn hover:bg-primary-50 transition-colors duration-200"
-            >
-              Choose Avatar
-            </button>
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-surface-200"
-              style={{
-                backgroundColor:
-                  profileColors[profilePic - 1]?.background || '#e5e5e5',
-              }}
-            >
-              {SelectedIcon && <SelectedIcon size={24} color="#fff" />}
-            </div>
+        {error && (
+          <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
+            {error}
           </div>
+        )}
+
+        {/* Profile pic selector */}
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDialog(true)}
+            className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform duration-150 ring-2 ring-primary-500 ring-offset-2"
+            style={{
+              backgroundColor:
+                profileColors[profilePic - 1]?.background || '#e5e5e5',
+            }}
+          >
+            {SelectedIcon && <SelectedIcon size={32} color="#fff" />}
+          </button>
+          <p className="text-xs text-surface-500">Click to choose avatar</p>
         </div>
 
         <ProfilePicSelector
@@ -142,34 +92,69 @@ const Signup = () => {
           onClose={() => setShowDialog(false)}
         />
 
-        {error && (
-          <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
-            {error}
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-3">
+          <TextField
+            label="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            fullWidth
+            required
+            size="small"
+          />
+          <TextField
+            label="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            fullWidth
+            size="small"
+          />
+        </div>
 
-        <button
+        <TextField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
+
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
+
+        <Button
           type="submit"
-          disabled={submitting}
-          className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 disabled:bg-primary-300 text-white font-semibold rounded-btn transition-colors duration-200"
+          variant="contained"
+          color="primary"
+          fullWidth
+          size="large"
+          disabled={loading}
         >
-          {submitting ? 'Creating Account...' : 'Create Account'}
-        </button>
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            'Create Account'
+          )}
+        </Button>
 
-        <div className="text-center mt-2">
+        <p className="text-center text-sm text-surface-500">
+          Already have an account?{' '}
           <Link
             href="/login"
-            className="text-sm text-surface-500 hover:text-surface-700 transition-colors"
+            className="text-primary-600 hover:text-primary-700 font-medium"
           >
-            Already a member?{' '}
-            <span className="text-primary-500 font-medium hover:underline">
-              Log In
-            </span>
+            Sign In
           </Link>
-        </div>
+        </p>
       </form>
     </FormCard>
   );
-};
-
-export default Signup;
+}

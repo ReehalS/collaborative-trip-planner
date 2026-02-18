@@ -59,14 +59,11 @@ const GET_USER_TRIPS = gql`
 const USER_UPDATE_MUTATION = gql`
   mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
     updateUser(id: $id, input: $input) {
-      user {
-        id
-        firstName
-        lastName
-        email
-        profilePic
-      }
-      token
+      id
+      firstName
+      lastName
+      email
+      profilePic
     }
   }
 `;
@@ -203,22 +200,6 @@ const JOIN_TRIP_MUTATION = gql`
   }
 `;
 
-const FORGOT_PASSWORD_MUTATION = gql`
-  mutation ForgotPassword($email: String!) {
-    forgotPassword(email: $email) {
-      message
-    }
-  }
-`;
-
-const RESET_PASSWORD_MUTATION = gql`
-  mutation ResetPassword($token: String!, $newPassword: String!) {
-    resetPassword(token: $token, newPassword: $newPassword) {
-      message
-    }
-  }
-`;
-
 export {
   GET_USER_ACTIVITIES,
   GET_USER_TRIPS,
@@ -234,6 +215,4 @@ export {
   DELETE_TRIP_MUTATION,
   FIND_TRIP_BY_JOIN_CODE,
   JOIN_TRIP_MUTATION,
-  FORGOT_PASSWORD_MUTATION,
-  RESET_PASSWORD_MUTATION,
 };

@@ -36,7 +36,7 @@ export default class Activities {
         where: { id },
         data: input,
       });
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }
@@ -48,7 +48,7 @@ export default class Activities {
         where: { id },
       });
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }

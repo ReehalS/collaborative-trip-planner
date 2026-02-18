@@ -34,5 +34,5 @@ Be concise but helpful. Use bullet points when listing multiple items. Keep answ
     messages,
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
 }

@@ -59,16 +59,13 @@ model Trip {
 }
 
 model User {
-  id                   String           @id @default(uuid())
-  email                String           @unique
-  firstName            String
-  lastName             String?
-  password             String
-  profilePic           Int
-  resetPasswordToken   String?          @unique
-  resetPasswordExpires DateTime?
-  trips                UserToTrip[]
-  UserToActivity       UserToActivity[]
+  id             String           @id
+  email          String           @unique
+  firstName      String
+  lastName       String?
+  profilePic     Int              @default(0)
+  trips          UserToTrip[]
+  UserToActivity UserToActivity[]
 }
 
 model UserToActivity {

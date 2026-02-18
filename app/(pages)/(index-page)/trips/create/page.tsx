@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import fetchTimezone from '@utils/fetchTimezone';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
-import { User } from '@utils/typeDefs';
 import { CREATE_TRIP_MUTATION } from '@utils/queries';
+import { useDbUser } from '@hooks/useDbUser';
 import { Button, TextField, CircularProgress } from '@mui/material';
 import PageHeader from '@components/PageHeader/PageHeader';
 
@@ -24,11 +23,14 @@ const CreateTripPage = () => {
   const [isJoinCodeValid] = useState(true);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { dbUser, loading: authLoading } = useDbUser();
+  const markerLibRef = useRef<google.maps.MarkerLibrary | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (authLoading) return;
+    if (!dbUser) {
       router.push('/login');
+      return;
     }
 
     const loader = new Loader({
@@ -36,13 +38,15 @@ const CreateTripPage = () => {
       version: 'weekly',
     });
 
-    loader
-      .load()
-      .then(async () => {
-        const { Map } = (await google.maps.importLibrary(
-          'maps'
-        )) as google.maps.MapsLibrary;
+    (async () => {
+      try {
+        const [mapsLib, markerLib] = await Promise.all([
+          loader.importLibrary('maps'),
+          loader.importLibrary('marker'),
+        ]);
+        markerLibRef.current = markerLib as google.maps.MarkerLibrary;
 
+        const { Map } = mapsLib as google.maps.MapsLibrary;
         const mapID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
         const mapInstance = new Map(
           document.getElementById('map') as HTMLElement,
@@ -53,12 +57,12 @@ const CreateTripPage = () => {
           }
         );
         setMap(mapInstance);
-      })
-      .catch((e) => {
+      } catch (e) {
         console.error('Failed to load Google Maps API:', e);
         setError('Failed to load Google Maps API');
-      });
-  }, [router]);
+      }
+    })();
+  }, [router, dbUser, authLoading]);
 
   const handleSearchLocation = async () => {
     const addressInput = document.getElementById('address') as HTMLInputElement;
@@ -89,9 +93,7 @@ const CreateTripPage = () => {
             marker.map = null;
           }
 
-          const { AdvancedMarkerElement } = (await google.maps.importLibrary(
-            'marker'
-          )) as google.maps.MarkerLibrary;
+          const { AdvancedMarkerElement } = markerLibRef.current!;
 
           const newMarker = new AdvancedMarkerElement({
             map,
@@ -134,10 +136,8 @@ const CreateTripPage = () => {
         return;
       }
 
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const user = jwtDecode<{ exp: number } & User>(token);
-      const userId = user.id;
+      if (!dbUser) return;
+      const userId = dbUser.id;
 
       const variables = {
         input: {

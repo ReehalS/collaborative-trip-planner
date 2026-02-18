@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
-import { Trip, User } from '@utils/typeDefs';
+import { Trip } from '@utils/typeDefs';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { GET_USER_TRIPS } from '@utils/queries';
 import { Button } from '@mui/material';
@@ -16,34 +15,32 @@ import {
   HiOutlineChevronRight,
   HiOutlineCalendar,
 } from 'react-icons/hi';
+import { useDbUser } from '@hooks/useDbUser';
 
 const TripsPage = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { dbUser, loading: authLoading } = useDbUser();
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!dbUser) {
+      router.push('/login');
+      return;
+    }
+
     const fetchTrips = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/login');
-        }
-        const user = jwtDecode<{ exp: number } & User>(token);
-        const userId = user.id;
-
-        if (!userId) {
-          setError('User not logged in.');
-          setLoading(false);
-          return;
-        }
-
-        const variables = { userId };
+        const variables = { userId: dbUser.id };
         const response = await sendApolloRequest(GET_USER_TRIPS, variables);
 
         if (response.data.userToTrips) {
-          setTrips(response.data.userToTrips.map((ut) => ut.trip) || []);
+          const tripsList = response.data.userToTrips.map(
+            (ut: { trip: Trip }) => ut.trip
+          );
+          setTrips(tripsList || []);
         }
       } catch (err) {
         setError('Failed to fetch trips.');
@@ -54,9 +51,9 @@ const TripsPage = () => {
     };
 
     fetchTrips();
-  }, [router]);
+  }, [dbUser, authLoading, router]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="max-w-5xl mx-auto w-full px-6 py-8">
         <LoadingSkeleton variant="page" />

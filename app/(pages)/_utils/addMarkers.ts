@@ -6,7 +6,8 @@ export const addMarkers = async (
   map: google.maps.Map,
   activities: Activity[],
   timezone: string,
-  reloadActivities: () => Promise<void>
+  reloadActivities: () => Promise<void>,
+  userId?: string
 ): Promise<
   {
     marker: google.maps.marker.AdvancedMarkerElement;
@@ -16,7 +17,7 @@ export const addMarkers = async (
   if (!map || !activities) return [];
 
   const { AdvancedMarkerElement, PinElement } =
-    await google.maps.importLibrary('marker');
+    (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
 
   const markerInfoPairs: {
     marker: google.maps.marker.AdvancedMarkerElement;
@@ -109,7 +110,7 @@ export const addMarkers = async (
       });
 
       // Toggle this infoWindow
-      if (infoWindow.getMap()) {
+      if ((infoWindow as unknown as { getMap(): unknown }).getMap()) {
         infoWindow.close();
       } else {
         infoWindow.open(map, marker);
@@ -121,7 +122,7 @@ export const addMarkers = async (
         );
         if (voteButton) {
           voteButton.onclick = async () => {
-            await castVote(activity.id);
+            if (userId) await castVote(activity.id, userId);
             await reloadActivities();
             infoWindow.close(); // Close after voting
           };

@@ -1,83 +1,118 @@
 'use client';
 
 import { useState } from 'react';
-import sendApolloRequest from '@utils/sendApolloRequest';
-import { FORGOT_PASSWORD_MUTATION } from '@utils/queries';
-import { TextField, Button } from '@mui/material';
 import Link from 'next/link';
+import { TextField, Button, CircularProgress } from '@mui/material';
 import FormCard from '@components/FormCard/FormCard';
+import { authClient } from '@app/auth-client';
 
-const ForgotPasswordPage = () => {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-      setError(null);
-      setMessage(null);
-      const variables = { email };
-      const response = await sendApolloRequest(
-        FORGOT_PASSWORD_MUTATION,
-        variables
-      );
-      if (response?.errors[0].message) {
-        setError(response?.errors[0].message);
-      } else {
-        setMessage(response?.data?.forgotPassword?.message);
+      // The runtime client exposes forgetPassword as callable for email-link
+      // password reset, but the TS types only model the OTP sub-method.
+      type ForgetPasswordFn = (_: {
+        email: string;
+        redirectTo: string;
+      }) => Promise<{ error?: { message?: string } }>;
+      const forgetPassword =
+        authClient.forgetPassword as unknown as ForgetPasswordFn;
+      const { error } = await forgetPassword({
+        email,
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        setError(error.message ?? 'Failed to send reset email.');
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      setError('Failed to send reset email. Please try again.');
+
+      setSuccess(true);
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (success) {
+    return (
+      <FormCard
+        title="Check Your Email"
+        subtitle="We sent you a password reset link"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-surface-600 text-center">
+            If an account exists for <strong>{email}</strong>, you will receive
+            a password reset email shortly.
+          </p>
+          <Link
+            href="/login"
+            className="text-center text-sm text-primary-600 hover:text-primary-700 font-medium"
+          >
+            Back to Sign In
+          </Link>
+        </div>
+      </FormCard>
+    );
+  }
+
   return (
     <FormCard
-      title="Forgot your password?"
-      subtitle="Enter your email and we'll send you a reset link"
+      title="Forgot Password"
+      subtitle="Enter your email to receive a reset link"
     >
-      <div className="flex flex-col gap-4">
-        <TextField
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-        />
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          fullWidth
-          size="large"
-        >
-          Send Reset Email
-        </Button>
-
-        {message && (
-          <div className="bg-success-light text-success-dark rounded-btn px-4 py-2 text-sm">
-            {message}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
           <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">
             {error}
           </div>
         )}
 
-        <div className="text-center mt-2">
+        <TextField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          required
+          size="small"
+        />
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          size="large"
+          disabled={loading}
+        >
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            'Send Reset Link'
+          )}
+        </Button>
+
+        <p className="text-center text-sm">
           <Link
             href="/login"
-            className="text-sm text-primary-500 hover:text-primary-600 hover:underline underline-offset-2 transition-colors"
+            className="text-surface-500 hover:text-surface-700"
           >
-            Back to Login
+            Back to Sign In
           </Link>
-        </div>
-      </div>
+        </p>
+      </form>
     </FormCard>
   );
-};
-
-export default ForgotPasswordPage;
+}

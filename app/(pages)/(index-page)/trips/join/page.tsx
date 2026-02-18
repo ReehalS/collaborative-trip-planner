@@ -3,23 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import sendApolloRequest from '@utils/sendApolloRequest';
-import { jwtDecode } from 'jwt-decode';
-import { User } from '@utils/typeDefs';
 import { FIND_TRIP_BY_JOIN_CODE, JOIN_TRIP_MUTATION } from '@utils/queries';
 import { TextField, Button } from '@mui/material';
 import FormCard from '@components/FormCard/FormCard';
+import { useDbUser } from '@hooks/useDbUser';
 
 const JoinTripPage = () => {
   const [joinCode, setJoinCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { dbUser, loading: authLoading } = useDbUser();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!authLoading && !dbUser) {
       router.push('/login');
     }
-  }, [router]);
+  }, [authLoading, dbUser, router]);
 
   const handleJoin = async () => {
     try {
@@ -34,19 +33,14 @@ const JoinTripPage = () => {
         return;
       }
 
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const user = jwtDecode<{ exp: number } & User>(token);
-      const userId = user.id;
-
-      if (!userId) {
+      if (!dbUser) {
         setError('User is not logged in.');
         return;
       }
 
       await sendApolloRequest(JOIN_TRIP_MUTATION, {
         tripId: trip.id,
-        userId,
+        userId: dbUser.id,
       });
 
       router.push(`/trips/${trip.id}`);

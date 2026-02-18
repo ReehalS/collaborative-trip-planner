@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import sendApolloRequest from '@utils/sendApolloRequest';
 import { GET_TRIP_MEMBERS } from '@utils/queries';
 import { useRouter } from 'next/navigation';
@@ -17,19 +17,18 @@ interface TripMember {
   role: string;
 }
 
-const TripMembersPage = ({ params }: { params: { tripId: string } }) => {
+const TripMembersPage = ({
+  params,
+}: {
+  params: Promise<{ tripId: string }>;
+}) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const tripId = params.tripId;
+  const { tripId } = use(params);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-    }
-
     const fetchMembers = async () => {
       try {
         const variables = { tripId };

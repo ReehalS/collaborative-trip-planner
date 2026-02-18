@@ -57,7 +57,7 @@ export default class UserToActivity {
           activity: true,
         },
       });
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }
@@ -69,7 +69,7 @@ export default class UserToActivity {
         where: { id },
       });
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }

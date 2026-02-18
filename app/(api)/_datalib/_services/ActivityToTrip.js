@@ -56,7 +56,7 @@ export default class ActivityToTrip {
           trip: true,
         },
       });
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }
@@ -68,7 +68,7 @@ export default class ActivityToTrip {
         where: { id },
       });
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }

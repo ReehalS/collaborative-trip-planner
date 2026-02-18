@@ -1,38 +1,26 @@
-import bcrypt from 'bcrypt';
 import prisma from '../_prisma/client.js';
 
 export default class Users {
   // CREATE
   static async create({ input }) {
-    const { email, firstName, lastName, profilePic, password } = input;
-
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    const { id, email, firstName, lastName, profilePic } = input;
 
     return prisma.user.create({
       data: {
+        id,
         email,
         firstName,
         lastName,
-        profilePic,
-        password: hashedPassword,
+        profilePic: profilePic ?? 0,
       },
     });
   }
 
   // UPDATE
   static async update({ id, input }) {
-    const { password, ...rest } = input;
-
-    const data = { ...rest };
-
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      data.password = hashedPassword;
-    }
-
     return prisma.user.update({
       where: { id },
-      data,
+      data: input,
     });
   }
 
@@ -58,7 +46,7 @@ export default class Users {
         where: { id },
       });
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   }
@@ -66,12 +54,6 @@ export default class Users {
   static async findByEmail(email) {
     return prisma.user.findUnique({
       where: { email },
-    });
-  }
-
-  static async findByResetToken(resetPasswordToken) {
-    return prisma.user.findUnique({
-      where: { resetPasswordToken },
     });
   }
 }

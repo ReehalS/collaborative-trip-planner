@@ -1,4 +1,4 @@
-import ExampleServerComponent from './ExampleServerComponent';
+import _ExampleServerComponent from './ExampleServerComponent';
 import ExampleClientComponent from './ExampleClientComponent';
 
 export default function Example() {

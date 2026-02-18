@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Trip, Activity } from '@utils/typeDefs';
 import { AiOutlineClose, AiOutlineSend } from 'react-icons/ai';
 
@@ -19,10 +19,10 @@ export default function AIChatPanel({
   activities,
 }: AIChatPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState('');
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: '/api/ai/chat',
+  const chatOptions = {
+    transport: {
       body: {
         tripContext: {
           city: trip.city,
@@ -32,7 +32,14 @@ export default function AIChatPanel({
           })),
         },
       },
-    });
+    },
+  };
+
+  const { messages, sendMessage, status } = useChat(
+    chatOptions as unknown as Parameters<typeof useChat>[0]
+  );
+
+  const isLoading = status === 'streaming' || status === 'submitted';
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,6 +48,17 @@ export default function AIChatPanel({
   if (!isOpen) return null;
 
   const location = trip.city ? `${trip.city}, ${trip.country}` : trip.country;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    sendMessage({ text: input });
+    setInput('');
+  };
+
+  const handleQuickQuestion = (q: string) => {
+    sendMessage({ text: q });
+  };
 
   return (
     <>
@@ -78,23 +96,7 @@ export default function AIChatPanel({
                 ].map((q) => (
                   <button
                     key={q}
-                    onClick={() => {
-                      const nativeInputValueSetter =
-                        Object.getOwnPropertyDescriptor(
-                          window.HTMLInputElement.prototype,
-                          'value'
-                        )?.set;
-                      const inputEl = document.getElementById(
-                        'chat-input'
-                      ) as HTMLInputElement;
-                      if (inputEl && nativeInputValueSetter) {
-                        nativeInputValueSetter.call(inputEl, q);
-                        inputEl.dispatchEvent(
-                          new Event('input', { bubbles: true })
-                        );
-                        inputEl.form?.requestSubmit();
-                      }
-                    }}
+                    onClick={() => handleQuickQuestion(q)}
                     className="text-xs text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-btn px-3 py-2 transition-colors text-left"
                   >
                     {q}
@@ -104,24 +106,28 @@ export default function AIChatPanel({
             </div>
           )}
 
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${
-                msg.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
+          {messages.map((msg) => {
+            const textPart = msg.parts?.find((p) => p.type === 'text');
+            const text = textPart && 'text' in textPart ? textPart.text : '';
+            return (
               <div
-                className={`max-w-[85%] rounded-card px-3 py-2 text-sm leading-relaxed ${
-                  msg.role === 'user'
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-surface-100 text-surface-800'
+                key={msg.id}
+                className={`flex ${
+                  msg.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
-                <p className="whitespace-pre-wrap">{msg.content}</p>
+                <div
+                  className={`max-w-[85%] rounded-card px-3 py-2 text-sm leading-relaxed ${
+                    msg.role === 'user'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-surface-100 text-surface-800'
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{text}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
             <div className="flex justify-start">
@@ -142,7 +148,7 @@ export default function AIChatPanel({
           <input
             id="chat-input"
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about your trip..."
             className="flex-1 px-3 py-2 text-sm border border-surface-200 rounded-btn outline-none focus:border-primary-400 transition-colors"
             disabled={isLoading}
