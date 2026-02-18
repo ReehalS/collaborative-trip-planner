@@ -6,7 +6,7 @@ import Link from 'next/link';
 import profileColors from '../_data/profileColors';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 import { useDbUser } from '@hooks/useDbUser';
-
+import Image from 'next/image';
 // ---------- Authenticated dashboard ----------
 function Dashboard({ user }: { user: User }) {
   const router = useRouter();
@@ -300,9 +300,12 @@ function LandingPage() {
 
       {/* Screenshot placeholder */}
       <section className="max-w-4xl mx-auto px-6 pb-16">
-        <div className="bg-surface-100 border-2 border-dashed border-surface-300 rounded-card h-64 sm:h-80 flex items-center justify-center">
-          <p className="text-surface-400 text-sm">App screenshot placeholder</p>
-        </div>
+        <Image
+          src="/images/app-screenshot.png"
+          alt="App screenshot"
+          width={800}
+          height={450}
+        />
       </section>
 
       {/* Features */}

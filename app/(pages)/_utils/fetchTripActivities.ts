@@ -12,7 +12,12 @@ export const fetchTripActivities = async (
       variables
     );
     if (activitiesResponse.data.activities) {
-      return activitiesResponse.data.activities;
+      const activities: Activity[] = activitiesResponse.data.activities;
+      activities.sort(
+        (a, b) =>
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+      );
+      return activities;
     } else {
       console.error('No activities found for the trip.');
       return [];

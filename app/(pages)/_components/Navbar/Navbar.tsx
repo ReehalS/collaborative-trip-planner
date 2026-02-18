@@ -12,12 +12,19 @@ import { authenticatedLinks, unauthenticatedLinks } from '@data/navConfig';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const session = authClient.useSession();
   const user = session.data?.user ?? null;
   const { dbUser } = useDbUser();
   const pathname = usePathname();
   const router = useRouter();
-  const authenticated = !!user;
+  // Only show auth-dependent UI after client hydration to avoid mismatch
+  const authenticated = hydrated && !!user;
+
+  // Mark as hydrated once mounted on client
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -33,7 +40,12 @@ export default function Navbar() {
     return () => document.removeEventListener('click', handleClick);
   }, [profileMenuOpen]);
 
-  const links = authenticated ? authenticatedLinks : unauthenticatedLinks;
+  // Don't render any nav links until hydrated to avoid server/client mismatch
+  const links = !hydrated
+    ? []
+    : authenticated
+    ? authenticatedLinks
+    : unauthenticatedLinks;
 
   const profilePic = dbUser?.profilePic ?? 1;
   const ProfileIcon = profileColors[profilePic - 1]?.icon;

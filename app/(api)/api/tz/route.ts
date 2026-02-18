@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const { latitude, longitude } = await request.json();
-    //console.log(request);
     if (latitude == null || longitude == null) {
       return NextResponse.json(
         { error: 'Latitude and Longitude are required' },
@@ -19,10 +18,14 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    if (data.rawOffset !== undefined) {
-      const utcOffset = data.rawOffset * 1000;
-      const formattedOffset = utcOffset >= 0 ? `${utcOffset}` : `-${utcOffset}`;
-      return NextResponse.json({ timezone: formattedOffset });
+    if (data.timeZoneId) {
+      // Return the IANA timezone name (e.g. "America/Los_Angeles")
+      // which correctly handles DST automatically.
+      return NextResponse.json({ timezone: data.timeZoneId });
+    } else if (data.rawOffset !== undefined) {
+      // Fallback: combine rawOffset + dstOffset for total UTC offset in ms
+      const totalOffsetMs = (data.rawOffset + (data.dstOffset || 0)) * 1000;
+      return NextResponse.json({ timezone: `${totalOffsetMs}` });
     } else {
       return NextResponse.json(
         { error: 'Failed to fetch timezone data' },
