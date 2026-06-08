@@ -53,7 +53,7 @@ const JoinTripPage = () => {
   return (
     <FormCard
       title="Join a Trip"
-      subtitle="Enter the join code shared with you"
+      subtitle="Paste the code your friend shared with you"
     >
       <div className="flex flex-col gap-4">
         {error && (

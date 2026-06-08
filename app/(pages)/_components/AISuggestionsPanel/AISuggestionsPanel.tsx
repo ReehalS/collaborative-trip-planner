@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trip, Activity } from '@utils/typeDefs';
-import { AiOutlineClose, AiOutlineSend } from 'react-icons/ai';
+import { LuX, LuSendHorizonal, LuPlus } from 'react-icons/lu';
 import { CircularProgress } from '@mui/material';
 
 interface AISuggestion {
@@ -128,9 +128,9 @@ export default function AISuggestionsPanel({
       {/* Panel */}
       <div className="fixed top-0 right-0 h-full w-[500px] max-w-full bg-white shadow-elevated z-50 flex flex-col animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-surface-200">
+        <div className="flex items-center justify-between p-4 border-b border-stone-200 bg-accent-50/50">
           <div>
-            <h3 className="font-semibold text-surface-900">
+            <h3 className="font-display font-semibold text-surface-900">
               Activity Suggestions
             </h3>
             <p className="text-xs text-surface-500">{location}</p>
@@ -139,7 +139,7 @@ export default function AISuggestionsPanel({
             onClick={onClose}
             className="p-1.5 rounded-btn text-surface-400 hover:text-surface-600 hover:bg-surface-100 transition-colors"
           >
-            <AiOutlineClose className="w-5 h-5" />
+            <LuX className="w-5 h-5" />
           </button>
         </div>
 
@@ -158,7 +158,7 @@ export default function AISuggestionsPanel({
             <div key={msg.id} className="space-y-3">
               {msg.role === 'user' ? (
                 <div className="flex justify-end">
-                  <div className="max-w-[85%] bg-primary-500 text-white rounded-card px-3 py-2 text-sm">
+                  <div className="max-w-[85%] bg-primary-500 text-white rounded-card px-3.5 py-2.5 text-sm">
                     {msg.content}
                   </div>
                 </div>
@@ -168,33 +168,33 @@ export default function AISuggestionsPanel({
                     {msg.content}
                   </div>
                   {msg.suggestions && msg.suggestions.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {msg.suggestions.map((s, i) => (
                         <div
                           key={i}
-                          className="bg-surface-50 rounded-card border border-surface-200 p-3"
+                          className="bg-stone-50 rounded-card border border-stone-200 border-l-4 border-l-accent-400 p-3.5"
                         >
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <h4 className="font-semibold text-surface-900 text-sm">
                               {s.activityName}
                             </h4>
-                            <span className="text-xs text-surface-400 whitespace-nowrap flex-shrink-0">
+                            <span className="text-xs text-surface-400 whitespace-nowrap flex-shrink-0 bg-stone-100 px-2 py-0.5 rounded-full">
                               {s.estimatedDuration}
                             </span>
                           </div>
-                          <p className="text-xs text-surface-600 leading-relaxed mb-2">
+                          <p className="text-xs text-surface-600 leading-relaxed mb-2.5">
                             {s.notes}
                           </p>
-                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
                             {s.categories.map((cat) => (
                               <span
                                 key={cat}
-                                className="text-xs font-medium bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full"
+                                className="text-xs font-medium bg-primary-50 text-primary-800 px-2.5 py-0.5 rounded-full"
                               >
                                 {cat}
                               </span>
                             ))}
-                            <span className="text-xs text-surface-400">
+                            <span className="text-xs text-surface-400 bg-stone-100 px-2 py-0.5 rounded-full">
                               {timeOfDayLabels[s.suggestedTimeOfDay] ||
                                 s.suggestedTimeOfDay}
                             </span>
@@ -210,9 +210,10 @@ export default function AISuggestionsPanel({
                               );
                               onClose();
                             }}
-                            className="text-xs font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-accent-600 hover:text-accent-700 transition-colors"
                           >
-                            + Add to Trip
+                            <LuPlus className="w-3.5 h-3.5" />
+                            Add to Trip
                           </button>
                         </div>
                       ))}
@@ -234,16 +235,17 @@ export default function AISuggestionsPanel({
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-surface-200 bg-surface-50">
+        <div className="p-4 border-t border-stone-200 bg-stone-50">
           <p className="text-xs text-surface-500 mb-2">
-            Refine suggestions (e.g., "outdoor activities" or "family-friendly")
+            Refine suggestions (e.g., &ldquo;outdoor activities&rdquo; or
+            &ldquo;family-friendly&rdquo;)
           </p>
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="What are you looking for?"
-              className="flex-1 px-3 py-2 text-sm border border-surface-200 rounded-btn outline-none focus:border-primary-400 transition-colors"
+              className="flex-1 px-3 py-2 text-sm border border-stone-200 rounded-btn outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 transition-all bg-white"
               disabled={isLoading}
             />
             <button
@@ -251,7 +253,7 @@ export default function AISuggestionsPanel({
               disabled={isLoading || !input.trim()}
               className="p-2 bg-primary-500 hover:bg-primary-600 disabled:bg-surface-200 text-white disabled:text-surface-400 rounded-btn transition-colors"
             >
-              <AiOutlineSend className="w-4 h-4" />
+              <LuSendHorizonal className="w-4 h-4" />
             </button>
           </form>
         </div>

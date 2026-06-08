@@ -24,6 +24,20 @@ import {
 import PageHeader from '@components/PageHeader/PageHeader';
 import AIChatPanel from '@components/AIChatPanel/AIChatPanel';
 import AISuggestionsPanel from '@components/AISuggestionsPanel/AISuggestionsPanel';
+import {
+  LuGlobe,
+  LuMapPin,
+  LuKey,
+  LuCopy,
+  LuUsers,
+  LuCalendar,
+  LuPlus,
+  LuTrash2,
+  LuSparkles,
+  LuWand2,
+  LuMessageCircle,
+  LuRotateCcw,
+} from 'react-icons/lu';
 
 interface OptimizedActivity {
   activityId: string;
@@ -248,44 +262,14 @@ const TripDetailsPage = ({
       />
 
       {/* Trip info bar */}
-      <div className="bg-white rounded-card shadow-card p-4 mb-5 flex flex-wrap items-center gap-x-6 gap-y-2">
+      <div className="bg-white rounded-card shadow-card border-l-4 border-l-primary-400 p-4 mb-5 flex flex-wrap items-center gap-x-6 gap-y-2">
         <div className="flex items-center gap-2 text-sm text-surface-600">
-          <svg
-            className="w-4 h-4 text-primary-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <LuGlobe className="w-4 h-4 text-primary-500" />
           <span>{trip.country}</span>
         </div>
         {trip.city && (
           <div className="flex items-center gap-2 text-sm text-surface-600">
-            <svg
-              className="w-4 h-4 text-primary-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
+            <LuMapPin className="w-4 h-4 text-accent-500" />
             <span>{trip.city}</span>
           </div>
         )}
@@ -294,49 +278,26 @@ const TripDetailsPage = ({
             onClick={() => handleCopyToClipboard(trip.joinCode, setCopySuccess)}
             className="flex items-center gap-2 text-sm text-surface-600 hover:text-primary-600 transition-colors duration-200 group"
           >
-            <svg
-              className="w-4 h-4 text-primary-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-              />
-            </svg>
-            <span className="font-mono text-xs bg-surface-100 px-2 py-1 rounded group-hover:bg-primary-50 transition-colors">
+            <LuKey className="w-4 h-4 text-amber-500" />
+            <span className="font-mono text-xs bg-stone-100 px-2 py-1 rounded-btn group-hover:bg-primary-50 transition-colors">
               {trip.joinCode}
             </span>
-            <svg
-              className="w-3.5 h-3.5 text-surface-400 group-hover:text-primary-500 transition-colors"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-              />
-            </svg>
+            <LuCopy className="w-3.5 h-3.5 text-surface-400 group-hover:text-primary-500 transition-colors" />
           </button>
         </Tooltip>
         {copySuccess && (
-          <span className="text-xs text-success font-medium">
+          <span className="text-xs text-accent-600 font-medium">
             {copySuccess}
           </span>
         )}
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-wrap gap-3 mb-5">
+      <div className="flex flex-wrap gap-2.5 mb-5">
         <Button
           variant="outlined"
           size="small"
+          startIcon={<LuUsers className="w-4 h-4" />}
           onClick={() => router.push(`/trips/${tripId}/members`)}
         >
           Members
@@ -344,6 +305,7 @@ const TripDetailsPage = ({
         <Button
           variant="outlined"
           size="small"
+          startIcon={<LuCalendar className="w-4 h-4" />}
           onClick={() => router.push(`/trips/${tripId}/activities`)}
         >
           All Activities
@@ -352,24 +314,27 @@ const TripDetailsPage = ({
           variant="contained"
           color="success"
           size="small"
+          startIcon={<LuPlus className="w-4 h-4" />}
           onClick={() => router.push(`/trips/${tripId}/create-activity`)}
         >
-          + Activity
+          Activity
         </Button>
         <Button
           variant="outlined"
           color="error"
           size="small"
+          startIcon={<LuTrash2 className="w-4 h-4" />}
           onClick={() => setDeleteDialogOpen(true)}
         >
-          Delete Trip
+          Delete
         </Button>
 
-        <div className="w-px h-6 bg-surface-200 mx-1 hidden sm:block" />
+        <div className="w-px h-6 bg-stone-200 mx-1 hidden sm:block self-center" />
 
         <Button
           variant="outlined"
           size="small"
+          startIcon={<LuSparkles className="w-4 h-4" />}
           onClick={() => setSuggestionsOpen(true)}
         >
           AI Suggest
@@ -377,6 +342,7 @@ const TripDetailsPage = ({
         <Button
           variant="outlined"
           size="small"
+          startIcon={<LuWand2 className="w-4 h-4" />}
           onClick={handleOptimizeItinerary}
           disabled={optimizationLoading || activities.length === 0}
         >
@@ -385,6 +351,7 @@ const TripDetailsPage = ({
         <Button
           variant="outlined"
           size="small"
+          startIcon={<LuMessageCircle className="w-4 h-4" />}
           onClick={() => setChatOpen(true)}
         >
           Ask AI
@@ -395,19 +362,21 @@ const TripDetailsPage = ({
       <div className="flex flex-col lg:flex-row gap-4">
         <div
           id="map"
-          className="flex-1 h-[500px] rounded-card border border-surface-200 overflow-hidden"
+          className="flex-1 h-[500px] rounded-card border border-stone-200 overflow-hidden shadow-card"
         />
 
-        <div className="lg:w-80 w-full bg-white rounded-card shadow-card overflow-hidden flex flex-col max-h-[500px]">
-          <div className="p-4 border-b border-surface-200">
-            <h3 className="font-semibold text-surface-900">Activities</h3>
+        <div className="lg:w-80 w-full bg-white rounded-card shadow-card overflow-hidden flex flex-col max-h-[500px] border border-stone-200/60">
+          <div className="p-4 border-b border-stone-200 bg-stone-50">
+            <h3 className="font-display font-semibold text-surface-900">
+              Activities
+            </h3>
             <p className="text-xs text-surface-500 mt-0.5">
               Click to focus on map
             </p>
           </div>
           <div className="flex-1 overflow-y-auto">
             {activities.length === 0 ? (
-              <div className="p-4 text-center text-sm text-surface-500">
+              <div className="p-6 text-center text-sm text-surface-500">
                 No activities yet
               </div>
             ) : (
@@ -415,9 +384,9 @@ const TripDetailsPage = ({
                 <button
                   key={activity.id}
                   onClick={() => handleActivityClick(index)}
-                  className="w-full text-left p-4 border-b border-surface-100 last:border-b-0 hover:bg-primary-50/50 transition-colors duration-150 cursor-pointer"
+                  className="w-full text-left p-4 border-b border-stone-100 last:border-b-0 hover:bg-primary-50/40 transition-colors duration-150 cursor-pointer group"
                 >
-                  <p className="font-medium text-surface-900 text-sm">
+                  <p className="font-medium text-surface-900 text-sm group-hover:text-primary-700 transition-colors">
                     {activity.activityName}
                   </p>
                   <p className="text-xs text-surface-500 mt-1">
@@ -428,15 +397,14 @@ const TripDetailsPage = ({
               ))
             )}
           </div>
-          <div className="p-3 border-t border-surface-200 bg-surface-50">
-            <Button
-              variant="outlined"
-              size="small"
-              fullWidth
+          <div className="p-3 border-t border-stone-200 bg-stone-50">
+            <button
               onClick={handleResetView}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-surface-600 hover:text-primary-600 bg-white border border-stone-200 hover:border-primary-200 rounded-btn transition-all duration-200"
             >
+              <LuRotateCcw className="w-3.5 h-3.5" />
               Reset View
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -445,7 +413,7 @@ const TripDetailsPage = ({
       {(optimization || optimizationLoading) && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-surface-900">
+            <h3 className="font-display font-semibold text-surface-900">
               Optimized Itinerary
             </h3>
             {optimization && (
@@ -458,14 +426,14 @@ const TripDetailsPage = ({
             )}
           </div>
           {optimizationLoading ? (
-            <div className="flex items-center gap-3 p-6 bg-white rounded-card shadow-card">
+            <div className="flex items-center gap-3 p-6 bg-white rounded-card shadow-card border border-stone-200/60">
               <CircularProgress size={20} />
               <span className="text-sm text-surface-500">
                 Optimizing your itinerary...
               </span>
             </div>
           ) : optimization ? (
-            <div className="bg-white rounded-card shadow-card p-5 space-y-4">
+            <div className="bg-white rounded-card shadow-card border border-stone-200/60 p-5 space-y-4">
               <p className="text-sm text-surface-600 leading-relaxed">
                 {optimization.overallReasoning}
               </p>
@@ -473,7 +441,7 @@ const TripDetailsPage = ({
                 {optimization.optimizedOrder.map((item, i) => (
                   <div
                     key={item.activityId}
-                    className="flex items-start gap-3 p-3 rounded-btn bg-surface-50"
+                    className="flex items-start gap-3 p-3 rounded-btn bg-stone-50 border border-stone-100"
                   >
                     <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-500 text-white text-xs font-bold flex items-center justify-center">
                       {i + 1}

@@ -57,14 +57,14 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-md border-b border-surface-200 shadow-navbar">
+    <nav className="sticky top-0 z-50 h-16 bg-white/80 backdrop-blur-md border-b border-stone-200 shadow-navbar">
       <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Brand */}
         <Link
           href="/"
           className="font-display text-xl font-bold text-surface-900 tracking-tight hover:text-primary-600 transition-colors duration-200"
         >
-          Collaborative Planner
+          Wanderly
         </Link>
 
         {/* Desktop nav */}

@@ -1,8 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button } from '@mui/material';
-import { AiOutlineArrowLeft } from 'react-icons/ai';
+import { LuArrowLeft } from 'react-icons/lu';
 
 interface PageHeaderProps {
   title: string;
@@ -21,16 +20,14 @@ export default function PageHeader({
 
   return (
     <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-      <div className="flex items-center gap-4">
-        <Button
+      <div className="flex items-center gap-3">
+        <button
           onClick={handleBack}
-          startIcon={<AiOutlineArrowLeft />}
-          variant="outlined"
-          size="small"
-          sx={{ textTransform: 'none', borderRadius: '8px' }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-surface-600 hover:text-primary-600 bg-white border border-surface-200 hover:border-primary-200 rounded-btn shadow-sm transition-all duration-200"
         >
+          <LuArrowLeft className="w-4 h-4" />
           Back
-        </Button>
+        </button>
         <h1 className="font-display text-2xl font-bold text-surface-900">
           {title}
         </h1>

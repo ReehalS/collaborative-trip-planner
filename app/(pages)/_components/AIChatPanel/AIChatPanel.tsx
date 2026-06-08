@@ -3,7 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { useState, useEffect, useRef } from 'react';
 import { Trip, Activity } from '@utils/typeDefs';
-import { AiOutlineClose, AiOutlineSend } from 'react-icons/ai';
+import { LuX, LuSendHorizonal } from 'react-icons/lu';
 
 interface AIChatPanelProps {
   isOpen: boolean;
@@ -68,16 +68,18 @@ export default function AIChatPanel({
       {/* Panel */}
       <div className="fixed top-0 right-0 h-full w-96 max-w-full bg-white shadow-elevated z-50 flex flex-col animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-surface-200">
+        <div className="flex items-center justify-between p-4 border-b border-stone-200 bg-primary-50/50">
           <div>
-            <h3 className="font-semibold text-surface-900">Trip Assistant</h3>
+            <h3 className="font-display font-semibold text-surface-900">
+              Trip Assistant
+            </h3>
             <p className="text-xs text-surface-500">{location}</p>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded-btn text-surface-400 hover:text-surface-600 hover:bg-surface-100 transition-colors"
           >
-            <AiOutlineClose className="w-5 h-5" />
+            <LuX className="w-5 h-5" />
           </button>
         </div>
 
@@ -85,10 +87,10 @@ export default function AIChatPanel({
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {messages.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-sm text-surface-500">
+              <p className="text-sm text-surface-500 mb-4">
                 Ask me anything about your trip to {location}!
               </p>
-              <div className="mt-4 flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
                 {[
                   'What should I know before visiting?',
                   'Best restaurants nearby?',
@@ -97,7 +99,7 @@ export default function AIChatPanel({
                   <button
                     key={q}
                     onClick={() => handleQuickQuestion(q)}
-                    className="text-xs text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-btn px-3 py-2 transition-colors text-left"
+                    className="text-xs text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-100 rounded-btn px-3 py-2 transition-colors text-left"
                   >
                     {q}
                   </button>
@@ -117,10 +119,10 @@ export default function AIChatPanel({
                 }`}
               >
                 <div
-                  className={`max-w-[85%] rounded-card px-3 py-2 text-sm leading-relaxed ${
+                  className={`max-w-[85%] rounded-card px-3.5 py-2.5 text-sm leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-primary-500 text-white'
-                      : 'bg-surface-100 text-surface-800'
+                      : 'bg-stone-100 text-surface-800 border border-stone-200'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{text}</p>
@@ -131,7 +133,7 @@ export default function AIChatPanel({
 
           {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
             <div className="flex justify-start">
-              <div className="bg-surface-100 rounded-card px-3 py-2 text-sm text-surface-500">
+              <div className="bg-stone-100 border border-stone-200 rounded-card px-3.5 py-2.5 text-sm text-surface-500">
                 Thinking...
               </div>
             </div>
@@ -143,14 +145,14 @@ export default function AIChatPanel({
         {/* Input */}
         <form
           onSubmit={handleSubmit}
-          className="p-3 border-t border-surface-200 flex gap-2"
+          className="p-3 border-t border-stone-200 bg-stone-50 flex gap-2"
         >
           <input
             id="chat-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about your trip..."
-            className="flex-1 px-3 py-2 text-sm border border-surface-200 rounded-btn outline-none focus:border-primary-400 transition-colors"
+            className="flex-1 px-3 py-2 text-sm border border-stone-200 rounded-btn outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 transition-all bg-white"
             disabled={isLoading}
           />
           <button
@@ -158,7 +160,7 @@ export default function AIChatPanel({
             disabled={isLoading || !input.trim()}
             className="p-2 bg-primary-500 hover:bg-primary-600 disabled:bg-surface-200 text-white disabled:text-surface-400 rounded-btn transition-colors"
           >
-            <AiOutlineSend className="w-4 h-4" />
+            <LuSendHorizonal className="w-4 h-4" />
           </button>
         </form>
       </div>

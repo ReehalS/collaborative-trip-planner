@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchTripActivities } from '@utils/fetchTripActivities';
 import { Activity } from '@utils/typeDefs';
@@ -10,12 +10,16 @@ import EmptyState from '@components/EmptyState/EmptyState';
 import LoadingSkeleton from '@components/LoadingSkeleton/LoadingSkeleton';
 import { HiOutlineCalendar } from 'react-icons/hi';
 
-const TripActivitiesPage = ({ params }: { params: { tripId: string } }) => {
+const TripActivitiesPage = ({
+  params,
+}: {
+  params: Promise<{ tripId: string }>;
+}) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const tripId = params.tripId;
+  const { tripId } = use(params);
 
   useEffect(() => {
     const fetchActivities = async () => {

@@ -123,11 +123,11 @@ export default function EditUser() {
       )}
 
       <div className="flex items-center justify-center">
-        <div className="bg-white rounded-card shadow-card p-8 w-full max-w-lg">
+        <div className="bg-white rounded-card shadow-card border border-stone-200/60 border-t-4 border-t-amber-400 p-8 w-full max-w-lg">
           {/* Profile pic preview */}
           <div className="flex justify-center mb-6">
             <div
-              className="w-20 h-20 rounded-full flex items-center justify-center shadow-card"
+              className="w-20 h-20 rounded-full flex items-center justify-center shadow-card border-4 border-white"
               style={{
                 backgroundColor:
                   profileColors[profilePic - 1]?.background || '#e5e5e5',
@@ -185,12 +185,12 @@ export default function EditUser() {
                 <button
                   type="button"
                   onClick={() => setShowDialog(true)}
-                  className="px-4 py-2 text-sm font-medium text-primary-600 border border-primary-300 rounded-btn hover:bg-primary-50 transition-colors duration-200"
+                  className="px-4 py-2 text-sm font-medium text-primary-700 border border-primary-300 rounded-btn hover:bg-primary-50 transition-colors duration-200"
                 >
                   Choose Avatar
                 </button>
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-surface-200"
+                  className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-stone-200"
                   style={{
                     backgroundColor:
                       profileColors[profilePic - 1]?.background || '#e5e5e5',
@@ -209,7 +209,7 @@ export default function EditUser() {
             />
 
             {/* Password change section */}
-            <div className="border-t border-surface-200 pt-4 mt-2">
+            <div className="border-t border-stone-200 pt-4 mt-2">
               <p className="text-sm font-medium text-surface-700 mb-3">
                 Change Password
               </p>

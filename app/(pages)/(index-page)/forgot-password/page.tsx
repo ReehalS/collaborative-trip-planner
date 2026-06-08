@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
   return (
     <FormCard
       title="Forgot Password"
-      subtitle="Enter your email to receive a reset link"
+      subtitle="No worries, we'll send you a reset link"
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (

@@ -11,7 +11,7 @@ export const fetchTripActivities = async (
       GET_TRIP_ACTIVITIES,
       variables
     );
-    if (activitiesResponse.data.activities) {
+    if (activitiesResponse?.data?.activities) {
       const activities: Activity[] = activitiesResponse.data.activities;
       activities.sort(
         (a, b) =>

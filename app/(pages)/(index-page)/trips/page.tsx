@@ -132,7 +132,7 @@ const TripsPage = () => {
             <button
               key={trip.id}
               onClick={() => router.push(`/trips/${trip.id}`)}
-              className="bg-white rounded-card shadow-card p-5 text-left hover:shadow-card-hover transition-all duration-200 cursor-pointer group border border-surface-200/50"
+              className="bg-white rounded-card shadow-card p-5 text-left hover:shadow-card-hover transition-all duration-200 cursor-pointer group border border-surface-200/50 border-l-4 border-l-primary-300"
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-semibold text-lg text-surface-900 group-hover:text-primary-600 transition-colors duration-200">

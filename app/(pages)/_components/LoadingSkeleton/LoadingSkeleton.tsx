@@ -6,7 +6,7 @@ interface LoadingSkeletonProps {
 function SkeletonBlock({ className }: { className?: string }) {
   return (
     <div
-      className={`relative overflow-hidden bg-surface-200 rounded-btn ${
+      className={`relative overflow-hidden bg-stone-200 rounded-btn ${
         className || ''
       }`}
     >
@@ -17,7 +17,7 @@ function SkeletonBlock({ className }: { className?: string }) {
 
 function CardSkeleton() {
   return (
-    <div className="bg-white rounded-card shadow-card p-5 space-y-3">
+    <div className="bg-white rounded-card shadow-card border border-stone-200/60 border-l-4 border-l-stone-200 p-5 space-y-3">
       <SkeletonBlock className="h-5 w-3/4" />
       <SkeletonBlock className="h-4 w-1/2" />
       <SkeletonBlock className="h-4 w-2/3" />
@@ -27,7 +27,7 @@ function CardSkeleton() {
 
 function ListSkeleton() {
   return (
-    <div className="bg-white rounded-card shadow-card divide-y divide-surface-100">
+    <div className="bg-white rounded-card shadow-card border border-stone-200/60 divide-y divide-stone-100">
       {[1, 2, 3].map((i) => (
         <div key={i} className="p-4 flex items-center gap-3">
           <SkeletonBlock className="w-10 h-10 rounded-full" />
@@ -44,7 +44,7 @@ function ListSkeleton() {
 function FormSkeleton() {
   return (
     <div className="flex items-center justify-center min-h-[60vh] px-4">
-      <div className="bg-white rounded-card shadow-card p-8 w-full max-w-md space-y-4">
+      <div className="bg-white rounded-card shadow-card border border-stone-200/60 border-t-4 border-t-stone-200 p-8 w-full max-w-md space-y-4">
         <SkeletonBlock className="h-7 w-1/2 mx-auto" />
         <SkeletonBlock className="h-4 w-1/3 mx-auto" />
         <div className="space-y-4 mt-6">

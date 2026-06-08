@@ -5,14 +5,14 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#2563eb',
+      main: '#f97316',
+      light: '#fb923c',
+      dark: '#ea580c',
     },
     secondary: {
-      main: '#6366f1',
-      light: '#818cf8',
-      dark: '#4f46e5',
+      main: '#14b8a6',
+      light: '#2dd4bf',
+      dark: '#0d9488',
     },
     error: {
       main: '#ef4444',
@@ -34,7 +34,7 @@ const theme = createTheme({
     fontFamily: 'var(--font-inter), system-ui, sans-serif',
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 10,
   },
   components: {
     MuiButton: {
@@ -42,7 +42,7 @@ const theme = createTheme({
         root: {
           textTransform: 'none',
           fontWeight: 600,
-          borderRadius: '8px',
+          borderRadius: '10px',
           boxShadow: 'none',
           '&:hover': {
             boxShadow: 'none',
@@ -59,7 +59,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
+            borderRadius: '10px',
           },
         },
       },
@@ -67,8 +67,9 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
+          borderRadius: '16px',
+          boxShadow:
+            '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
         },
       },
     },
@@ -82,7 +83,7 @@ const theme = createTheme({
     MuiAlert: {
       styleOverrides: {
         root: {
-          borderRadius: '8px',
+          borderRadius: '10px',
         },
       },
     },

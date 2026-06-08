@@ -70,14 +70,14 @@ const TripMembersPage = ({
     <div className="max-w-2xl mx-auto w-full px-6 py-8 animate-fade-in">
       <PageHeader title="Trip Members" />
 
-      <div className="bg-white rounded-card shadow-card divide-y divide-surface-100 overflow-hidden">
+      <div className="bg-white rounded-card shadow-card border border-stone-200/60 divide-y divide-stone-100 overflow-hidden">
         {members.map((member: TripMember) => (
           <div
             key={member.user.id}
-            className="flex items-center gap-3 p-4 hover:bg-surface-50 transition-colors duration-150"
+            className="flex items-center gap-3 p-4 hover:bg-primary-50/30 transition-colors duration-150"
           >
-            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-bold text-primary-600">
+            <div className="w-10 h-10 rounded-full bg-primary-100 border border-primary-200 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-bold text-primary-700">
                 {member.user.firstName?.charAt(0)}
                 {member.user.lastName?.charAt(0)}
               </span>
@@ -90,8 +90,8 @@ const TripMembersPage = ({
             <span
               className={`text-xs font-medium px-2.5 py-1 rounded-full ${
                 member.role === 'CREATOR'
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'bg-surface-100 text-surface-600'
+                  ? 'bg-primary-50 text-primary-800 border border-primary-200'
+                  : 'bg-stone-100 text-surface-600 border border-stone-200'
               }`}
             >
               {member.role === 'CREATOR' ? 'Creator' : 'Member'}

@@ -14,7 +14,7 @@ export default function FormCard({
   return (
     <div className="flex items-center justify-center min-h-[60vh] px-4">
       <div
-        className={`bg-white rounded-card shadow-card p-8 w-full ${maxWidth} animate-scale-in`}
+        className={`bg-white rounded-card shadow-card p-8 w-full ${maxWidth} animate-scale-in border-t-4 border-primary-400`}
       >
         <h1 className="font-display text-2xl font-bold text-surface-900 text-center mb-2">
           {title}

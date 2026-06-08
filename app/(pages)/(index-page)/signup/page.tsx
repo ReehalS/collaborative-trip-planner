@@ -61,7 +61,7 @@ export default function SignupPage() {
   const SelectedIcon = profileColors[profilePic - 1]?.icon;
 
   return (
-    <FormCard title="Create Account" subtitle="Join Collaborative Planner">
+    <FormCard title="Create Account" subtitle="Let's get you set up">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
           <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">

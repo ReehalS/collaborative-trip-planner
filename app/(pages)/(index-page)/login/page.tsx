@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <FormCard title="Welcome Back" subtitle="Sign in to your account">
+    <FormCard title="Welcome Back" subtitle="Welcome back to Wanderly">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
           <div className="bg-error-light text-error-dark rounded-btn px-4 py-2 text-sm">

@@ -38,16 +38,16 @@
   color: #fff !important;
 }
 .MuiButton-containedPrimary {
-  background-color: #3b82f6 !important;
+  background-color: #f97316 !important;
 }
 .MuiButton-containedPrimary:hover {
-  background-color: #2563eb !important;
+  background-color: #ea580c !important;
 }
 .MuiButton-containedSuccess {
-  background-color: #22c55e !important;
+  background-color: #14b8a6 !important;
 }
 .MuiButton-containedSuccess:hover {
-  background-color: #16a34a !important;
+  background-color: #0d9488 !important;
 }
 .MuiButton-containedError {
   background-color: #ef4444 !important;

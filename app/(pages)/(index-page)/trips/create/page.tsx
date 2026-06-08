@@ -9,6 +9,7 @@ import { CREATE_TRIP_MUTATION } from '@utils/queries';
 import { useDbUser } from '@hooks/useDbUser';
 import { Button, TextField, CircularProgress } from '@mui/material';
 import PageHeader from '@components/PageHeader/PageHeader';
+import { LuMapPin } from 'react-icons/lu';
 
 const CreateTripPage = () => {
   const [latitude, setLatitude] = useState(0);
@@ -93,11 +94,18 @@ const CreateTripPage = () => {
             marker.map = null;
           }
 
-          const { AdvancedMarkerElement } = markerLibRef.current!;
+          const { AdvancedMarkerElement, PinElement } = markerLibRef.current!;
+
+          const pin = new PinElement({
+            glyphColor: 'white',
+            background: '#f97316',
+            borderColor: '#ea580c',
+          });
 
           const newMarker = new AdvancedMarkerElement({
             map,
             position: location,
+            content: pin.element,
             title: address,
           });
 
@@ -177,7 +185,7 @@ const CreateTripPage = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-card shadow-card p-6 space-y-5">
+      <div className="bg-white rounded-card shadow-card border border-stone-200/60 border-t-4 border-t-primary-400 p-6 space-y-5">
         {/* Location search */}
         <div className="flex gap-3">
           <TextField
@@ -204,31 +212,13 @@ const CreateTripPage = () => {
         {/* Map */}
         <div
           id="map"
-          className="h-[400px] w-full rounded-card border border-surface-200 overflow-hidden"
+          className="h-[400px] w-full rounded-card border border-stone-200 overflow-hidden shadow-card"
         />
 
         {/* Location result */}
         {country && (
-          <div className="flex items-center gap-2 text-sm text-surface-600 bg-surface-50 rounded-btn px-4 py-2.5">
-            <svg
-              className="w-4 h-4 text-primary-500 flex-shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
+          <div className="flex items-center gap-2 text-sm text-surface-600 bg-stone-50 border border-stone-200 rounded-btn px-4 py-2.5">
+            <LuMapPin className="w-4 h-4 text-accent-500 flex-shrink-0" />
             <span>
               {city ? `${city}, ` : ''}
               {country}

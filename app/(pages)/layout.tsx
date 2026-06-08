@@ -7,7 +7,7 @@ import Footer from '@components/Footer/Footer';
 import ThemeRegistry from '@components/ThemeRegistry';
 
 export const metadata = {
-  title: 'Collaborative Planner',
+  title: 'Wanderly',
   description: 'Plan trips collaboratively with friends',
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fonts} min-h-screen flex flex-col bg-surface-50 font-sans text-surface-700 antialiased`}
+        className={`${fonts} min-h-screen flex flex-col bg-stone-50 font-sans text-surface-700 antialiased`}
       >
         <Providers>
           <ThemeRegistry>
