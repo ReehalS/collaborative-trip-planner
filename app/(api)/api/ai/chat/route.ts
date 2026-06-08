@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { streamText } from 'ai';
-import { defaultModel } from '../_lib/openrouter';
+import { webSearchModel } from '../_lib/openrouter';
 
 export async function POST(request: NextRequest) {
   const { messages, tripContext } = await request.json();
@@ -29,7 +29,7 @@ Help the user with:
 Be concise but helpful. Use bullet points when listing multiple items. Keep answers focused and practical.`;
 
   const result = streamText({
-    model: defaultModel,
+    model: webSearchModel,
     system: systemMessage,
     messages,
   });

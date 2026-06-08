@@ -66,11 +66,11 @@ export const addMarkers = async (
               ${activity.activityName}
             </h3>
             <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: #57534e;">
-              <span style="flex-shrink: 0;">&#128340;</span>
+              <span style="flex-shrink: 0; display: inline-flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
               <span>${formatTimestamp(
                 activity.startTime,
                 timezone
-              )} &mdash; ${formatTimestamp(activity.endTime, timezone)}</span>
+              )} – ${formatTimestamp(activity.endTime, timezone)}</span>
             </div>
           </div>
           ${notesHtml}

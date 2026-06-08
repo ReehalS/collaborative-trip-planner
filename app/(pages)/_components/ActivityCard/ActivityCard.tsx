@@ -33,8 +33,7 @@ export default function ActivityCard({
           <div className="flex items-center gap-1.5 text-sm text-surface-500 mb-2">
             <LuClock className="w-4 h-4 flex-shrink-0 text-primary-400" />
             <span>
-              {formatTimestamp(activity.startTime, tz)} &mdash;{' '}
-              {formatTimestamp(activity.endTime, tz)}
+              {formatTimestamp(activity.startTime, tz)} – {formatTimestamp(activity.endTime, tz)}
             </span>
           </div>
 

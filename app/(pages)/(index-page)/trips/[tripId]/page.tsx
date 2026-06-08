@@ -24,6 +24,7 @@ import {
 import PageHeader from '@components/PageHeader/PageHeader';
 import AIChatPanel from '@components/AIChatPanel/AIChatPanel';
 import AISuggestionsPanel from '@components/AISuggestionsPanel/AISuggestionsPanel';
+import TravelSearchPanel from '@components/TravelSearchPanel/TravelSearchPanel';
 import {
   LuGlobe,
   LuMapPin,
@@ -37,6 +38,7 @@ import {
   LuWand2,
   LuMessageCircle,
   LuRotateCcw,
+  LuSearch,
 } from 'react-icons/lu';
 
 interface OptimizedActivity {
@@ -69,6 +71,7 @@ const TripDetailsPage = ({
   // AI state
   const [chatOpen, setChatOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [optimization, setOptimization] = useState<{
     optimizedOrder: OptimizedActivity[];
     overallReasoning: string;
@@ -334,6 +337,14 @@ const TripDetailsPage = ({
         <Button
           variant="outlined"
           size="small"
+          startIcon={<LuSearch className="w-4 h-4" />}
+          onClick={() => setSearchOpen(true)}
+        >
+          Search
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
           startIcon={<LuSparkles className="w-4 h-4" />}
           onClick={() => setSuggestionsOpen(true)}
         >
@@ -390,8 +401,7 @@ const TripDetailsPage = ({
                     {activity.activityName}
                   </p>
                   <p className="text-xs text-surface-500 mt-1">
-                    {formatTimestamp(activity.startTime, trip.timezone)} &mdash;{' '}
-                    {formatTimestamp(activity.endTime, trip.timezone)}
+                    {formatTimestamp(activity.startTime, trip.timezone)} – {formatTimestamp(activity.endTime, trip.timezone)}
                   </p>
                 </button>
               ))
@@ -464,6 +474,13 @@ const TripDetailsPage = ({
           ) : null}
         </div>
       )}
+
+      {/* Travel Search Panel */}
+      <TravelSearchPanel
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        trip={trip}
+      />
 
       {/* AI Chat Panel */}
       <AIChatPanel

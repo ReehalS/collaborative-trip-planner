@@ -12,6 +12,7 @@ interface AISuggestion {
   estimatedDuration: string;
   categories: string[];
   suggestedTimeOfDay: string;
+  priceEstimate?: string;
 }
 
 interface AISuggestionsPanelProps {
@@ -178,9 +179,16 @@ export default function AISuggestionsPanel({
                             <h4 className="font-semibold text-surface-900 text-sm">
                               {s.activityName}
                             </h4>
-                            <span className="text-xs text-surface-400 whitespace-nowrap flex-shrink-0 bg-stone-100 px-2 py-0.5 rounded-full">
-                              {s.estimatedDuration}
-                            </span>
+                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                              <span className="text-xs text-surface-400 whitespace-nowrap bg-stone-100 px-2 py-0.5 rounded-full">
+                                {s.estimatedDuration}
+                              </span>
+                              {s.priceEstimate && (
+                                <span className="text-xs font-semibold text-primary-600 whitespace-nowrap">
+                                  {s.priceEstimate}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <p className="text-xs text-surface-600 leading-relaxed mb-2.5">
                             {s.notes}
@@ -237,8 +245,7 @@ export default function AISuggestionsPanel({
         {/* Input */}
         <div className="p-4 border-t border-stone-200 bg-stone-50">
           <p className="text-xs text-surface-500 mb-2">
-            Refine suggestions (e.g., &ldquo;outdoor activities&rdquo; or
-            &ldquo;family-friendly&rdquo;)
+            Refine suggestions (e.g., "outdoor activities" or "family-friendly")
           </p>
           <form onSubmit={handleSubmit} className="flex gap-2">
             <input

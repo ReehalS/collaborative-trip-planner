@@ -11,6 +11,7 @@ const SuggestionSchema = z.object({
       estimatedDuration: z.string(),
       categories: z.array(z.string()),
       suggestedTimeOfDay: z.enum(['morning', 'afternoon', 'evening', 'any']),
+      priceEstimate: z.string(),
     })
   ),
 });
@@ -46,7 +47,8 @@ For each activity, provide:
 - notes: A 1-2 sentence description with a practical tip (best time to visit, what to expect, cost estimate)
 - estimatedDuration: How long to spend (e.g. "2 hours", "half day")
 - categories: Up to 3 relevant categories (e.g. "restaurant", "museum", "outdoor", "shopping", "nightlife", "cultural", "nature", "landmark")
-- suggestedTimeOfDay: When is best to do this activity`,
+- suggestedTimeOfDay: When is best to do this activity
+- priceEstimate: Typical cost to visit or participate (e.g. "Free", "$15–$25/person", "$50+ per person", "From $30/person")`,
     });
 
     return NextResponse.json(result.object);
